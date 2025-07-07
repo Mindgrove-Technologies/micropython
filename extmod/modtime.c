@@ -109,11 +109,11 @@ static MP_DEFINE_CONST_FUN_OBJ_0(mp_time_time_obj, time_time);
 
 // time_ns()
 // Returns the number of nanoseconds since the Epoch, as an integer.
+//doubt
 static mp_obj_t time_time_ns(void) {
     return mp_obj_new_int_from_ull(mp_hal_time_ns());
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mp_time_time_ns_obj, time_time_ns);
-
 #endif // MICROPY_PY_TIME_TIME_TIME_NS
 
 static mp_obj_t time_sleep(mp_obj_t seconds_o) {
@@ -122,6 +122,7 @@ static mp_obj_t time_sleep(mp_obj_t seconds_o) {
     #else
     #if MICROPY_PY_BUILTINS_FLOAT
     mp_hal_delay_ms((mp_uint_t)(1000 * mp_obj_get_float(seconds_o)));
+    //turns seconds to milliseconds before passing the input
     #else
     mp_hal_delay_ms(1000 * mp_obj_get_int(seconds_o));
     #endif
@@ -163,6 +164,7 @@ static mp_obj_t time_ticks_cpu(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mp_time_ticks_cpu_obj, time_ticks_cpu);
 
+//doubt
 static mp_obj_t time_ticks_diff(mp_obj_t end_in, mp_obj_t start_in) {
     // we assume that the arguments come from ticks_xx so are small ints
     mp_uint_t start = MP_OBJ_SMALL_INT_VALUE(start_in);
@@ -173,6 +175,7 @@ static mp_obj_t time_ticks_diff(mp_obj_t end_in, mp_obj_t start_in) {
         - MICROPY_PY_TIME_TICKS_PERIOD / 2;
     return MP_OBJ_NEW_SMALL_INT(diff);
 }
+
 MP_DEFINE_CONST_FUN_OBJ_2(mp_time_ticks_diff_obj, time_ticks_diff);
 
 static mp_obj_t time_ticks_add(mp_obj_t ticks_in, mp_obj_t delta_in) {
