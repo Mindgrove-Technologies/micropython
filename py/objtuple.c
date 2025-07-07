@@ -28,7 +28,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "py/objtuple.h"
+#include "objtuple.h"
 #include "py/runtime.h"
 
 /******************************************************************************/

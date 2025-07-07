@@ -24,6 +24,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+//#define MP_SYS_MUTABLE_PATH (0)
+#define MP_SYS_MUTABLE_ARGV (1)
+//#define MP_SYS_MUTABLE_NUM 2 --> actually has to point to the value of an enum therefore should not be defined as a definition
+//-- should be an enum value, not #defined as a number
 
 #include <assert.h>
 #include <stdarg.h>
@@ -45,6 +49,7 @@
 #include "py/builtin.h"
 #include "py/cstack.h"
 #include "py/gc.h"
+#include "py/mpstate.h"
 
 #if MICROPY_VFS_ROM && MICROPY_VFS_ROM_IOCTL
 #include "extmod/vfs.h"
@@ -70,7 +75,15 @@ MP_REGISTER_MODULE(MP_QSTR___main__, mp_module___main__);
 
 void mp_init(void) {
     qstr_init();
+    // In mp_init()
+    // printf("Initializing modules...\n");
+    // extern const mp_obj_module_t mymodule;
+    // printf("mymodule address: %p\n", &mymodule);
 
+    mp_state_vm_t *vm = &mp_state_ctx.vm;
+    //MP_STATE_VM(dict_main) = mp_obj_new_dict(0);
+    vm->sys_mutable[MP_SYS_MUTABLE_PATH] = mp_obj_new_list(0, NULL);
+    vm->sys_mutable[MP_SYS_MUTABLE_ARGV] = mp_obj_new_list(0, NULL);
     // no pending exceptions to start with
     MP_STATE_THREAD(mp_pending_exception) = MP_OBJ_NULL;
     #if MICROPY_ENABLE_SCHEDULER
@@ -117,13 +130,14 @@ void mp_init(void) {
     // locals = globals for outer module (see Objects/frameobject.c/PyFrame_New())
     mp_locals_set(&MP_STATE_VM(dict_main));
     mp_globals_set(&MP_STATE_VM(dict_main));
+    //The initialization for the qstring is happening here
 
     #if MICROPY_CAN_OVERRIDE_BUILTINS
     // start with no extensions to builtins
     MP_STATE_VM(mp_module_builtins_override_dict) = NULL;
     #endif
 
-    #if MICROPY_EMIT_MACHINE_CODE && (MICROPY_PERSISTENT_CODE_TRACK_FUN_DATA || MICROPY_PERSISTENT_CODE_TRACK_BSS_RODATA)
+    #if MICROPY_PERSISTENT_CODE_TRACK_FUN_DATA || MICROPY_PERSISTENT_CODE_TRACK_BSS_RODATA
     MP_STATE_VM(persistent_code_root_pointers) = MP_OBJ_NULL;
     #endif
 
@@ -1247,19 +1261,6 @@ void mp_load_method(mp_obj_t base, qstr attr, mp_obj_t *dest) {
             mp_raise_msg_varg(&mp_type_AttributeError,
                 MP_ERROR_TEXT("type object '%q' has no attribute '%q'"),
                 ((mp_obj_type_t *)MP_OBJ_TO_PTR(base))->name, attr);
-        #if MICROPY_MODULE___ALL__ && MICROPY_ERROR_REPORTING >= MICROPY_ERROR_REPORTING_DETAILED
-        } else if (mp_obj_is_type(base, &mp_type_module)) {
-            // report errors in __all__ as done by CPython
-            mp_obj_t dest_name[2];
-            qstr module_name = MP_QSTR_;
-            mp_load_method_maybe(base, MP_QSTR___name__, dest_name);
-            if (mp_obj_is_qstr(dest_name[0])) {
-                module_name = mp_obj_str_get_qstr(dest_name[0]);
-            }
-            mp_raise_msg_varg(&mp_type_AttributeError,
-                MP_ERROR_TEXT("module '%q' has no attribute '%q'"),
-                module_name, attr);
-        #endif
         } else {
             mp_raise_msg_varg(&mp_type_AttributeError,
                 MP_ERROR_TEXT("'%s' object has no attribute '%q'"),
@@ -1606,28 +1607,8 @@ mp_obj_t mp_import_from(mp_obj_t module, qstr name) {
 void mp_import_all(mp_obj_t module) {
     DEBUG_printf("import all %p\n", module);
 
+    // TODO: Support __all__
     mp_map_t *map = &mp_obj_module_get_globals(module)->map;
-
-    #if MICROPY_MODULE___ALL__
-    mp_map_elem_t *elem = mp_map_lookup(map, MP_OBJ_NEW_QSTR(MP_QSTR___all__), MP_MAP_LOOKUP);
-    if (elem != NULL) {
-        // When __all__ is defined, we must explicitly load all specified
-        // symbols, possibly invoking the module __getattr__ function
-        size_t len;
-        mp_obj_t *items;
-        mp_obj_get_array(elem->value, &len, &items);
-        for (size_t i = 0; i < len; i++) {
-            qstr qname = mp_obj_str_get_qstr(items[i]);
-            mp_obj_t dest[2];
-            mp_load_method(module, qname, dest);
-            mp_store_name(qname, dest[0]);
-        }
-        return;
-    }
-    #endif
-
-    // By default, the set of public names includes all names found in the module's
-    // namespace which do not begin with an underscore character ('_')
     for (size_t i = 0; i < map->alloc; i++) {
         if (mp_map_slot_is_filled(map, i)) {
             // Entry in module global scope may be generated programmatically

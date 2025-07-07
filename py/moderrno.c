@@ -29,7 +29,7 @@
 
 #include "py/obj.h"
 #include "py/mperrno.h"
-
+#define MICROPY_PY_ERRNO (1)
 #if MICROPY_PY_ERRNO
 
 // This list can be defined per port in mpconfigport.h to tailor it to a

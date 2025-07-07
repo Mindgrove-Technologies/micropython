@@ -32,6 +32,8 @@
 #ifdef MICROPY_MPHALPORT_H
 #include MICROPY_MPHALPORT_H
 #else
+//#include "../ports/minimal/mphalport.h"
+//#include <mphal.h>
 #include <mphalport.h>
 #endif
 

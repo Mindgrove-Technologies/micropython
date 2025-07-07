@@ -35,6 +35,8 @@
 #include "py/obj.h"
 #include "py/objint.h"
 #include "py/runtime.h"
+#include "py/objstr.h"
+#include "py/modbuiltins.h"
 
 #if MICROPY_PY_BUILTINS_FLOAT
 #include "py/formatfloat.h"
@@ -45,18 +47,97 @@ static const char pad_zeroes[] = "0000000000000000";
 
 static void plat_print_strn(void *env, const char *str, size_t len) {
     (void)env;
+    //so env is thye data according to the function pointer
     MP_PLAT_PRINT_STRN(str, len);
 }
 
 const mp_print_t mp_plat_print = {NULL, plat_print_strn};
+//Assigning values to the defined object
+//used to define a generic print interface.
 
 int mp_print_str(const mp_print_t *print, const char *str) {
-    size_t len = strlen(str);
-    if (len) {
-        print->print_strn(print->data, str, len);
+    if (str == NULL) {
+        return 0;
     }
+    if(str!= NULL){
+    
+    //Very basic sanity check on pointer (optional, architecture-specific)
+    uintptr_t addr = (uintptr_t)str;
+    if (addr < 0x1000 || addr > 0xFFFFFFFF) {
+        // You can log this, or replace it with "<invalid string>"
+        print->print_strn(print->data, "<bad pointer>", 13);
+        //print->print_strn(print->data,(char*)mp_builtin_print,20);
+        char buf[20];
+        snprintf(buf, sizeof(buf), "%0xp", mp_builtin_print);
+        print->print_strn(print->data, buf, strlen(buf));
+        char buf1[32];
+        snprintf(buf1, sizeof(buf1), "addr=0x%lx", (unsigned long)addr);
+        print->print_strn(print->data, buf1, strlen(buf1));
+        
+        return 13;
+    }
+    //GET_STR_DATA_LEN(self_in, str_data, str_len);
+    //print->print_strn(print->data, (const char *)str_data, str_len);}
+    // Try-catch block is not available in C, but if you have signal handlers or
+    // fault recovery logic, you can place strlen inside that.
+    // But typically just let it fail gracefully:
+    // size_t len = 0;
+    // // very crude check: walk the string and count, up to some max
+    // for (len = 0; len < 256; len++) {
+    //     if (str[len] == '\0') {
+    //         break;
+    //     }
+    // }
+    // if (len == 256) {
+    //     print->print_strn(print->data, "<unterminated>", 14);
+    //     return 14;
+    // }
+    // len = strlen(str);
+    // if (len) {
+    //     print->print_strn(print->data, str, len);
+    // }
+    // return len;
+    // }
+    size_t len = strlen(str);
+    print->print_strn(print->data, str, len);
     return len;
 }
+}
+#include <stddef.h> // For size_t
+
+// int mp_print_str(const mp_print_t *print, const char *str) {
+//     if (str == NULL) {
+//         return 0;
+//     }
+
+//     // Maximum scan length to prevent infinite loops
+//     const size_t MAX_SCAN_LEN = 256;
+//     size_t len = 0;
+
+//     // Scan for null terminator within safe limit
+//     while (len < MAX_SCAN_LEN) {
+//         if (str[len] == '\0') {
+//             break;
+//         }
+//         len++;
+//     }
+
+//     // Handle unterminated strings
+//     if (len == MAX_SCAN_LEN) {
+//         if (print->print_strn) {
+//             print->print_strn(print->data, "<unterminated>", 14);
+//         }
+//         return 14;
+//     }
+
+//     // Print valid string
+//     if (len > 0 && print->print_strn) {
+//         print->print_strn(print->data, str, len);
+//     }
+
+//     return len;
+// }
+
 
 int mp_print_strn(const mp_print_t *print, const char *str, size_t len, unsigned int flags, char fill, int width) {
     int left_pad = 0;
@@ -413,6 +494,8 @@ int mp_vprintf(const mp_print_t *print, const char *fmt, va_list args) {
                 flags |= PF_FLAG_SHOW_SIGN;
             } else if (*fmt == ' ') {
                 flags |= PF_FLAG_SPACE_SIGN;
+            } else if (*fmt == '!') {
+                flags |= PF_FLAG_NO_TRAILZ;
             } else if (*fmt == '0') {
                 flags |= PF_FLAG_PAD_AFTER_SIGN;
                 fill = '0';
@@ -493,12 +576,13 @@ int mp_vprintf(const mp_print_t *print, const char *fmt, va_list args) {
                     chrs += mp_print_strn(print, "(null)", 6, flags, fill, width);
                     break;
                 }
-                #endif
+                
                 size_t len = strlen(str);
                 if (prec >= 0 && (size_t)prec < len) {
                     len = prec;
                 }
                 chrs += mp_print_strn(print, str, len, flags, fill, width);
+                #endif
                 break;
             }
             case 'd': {
@@ -560,7 +644,9 @@ int mp_vprintf(const mp_print_t *print, const char *fmt, va_list args) {
             #endif
             default:
                 // if it's not %% then it's an unsupported format character
-                assert(*fmt == '%' || !"unsupported fmt char");
+                //assert(*fmt == '%' || !"unsupported fmt char");
+                printf("(*fmt == '%' || !unsupported fmt char");
+                printf("%d",(*fmt == '%' || !"unsupported fmt char"));
                 print->print_strn(print->data, fmt, 1);
                 chrs += 1;
                 break;

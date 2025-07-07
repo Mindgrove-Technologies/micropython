@@ -128,10 +128,14 @@ $(OBJ): | $(HEADER_BUILD)/qstrdefs.generated.h $(HEADER_BUILD)/mpversion.h $(OBJ
 # - else, if list of newer prerequisites ($?) is not empty, then process just these ($?)
 # - else, process all source files ($^) [this covers "make -B" which can set $? to empty]
 # See more information about this process in docs/develop/qstr.rst.
-$(HEADER_BUILD)/qstr.i.last: $(SRC_QSTR) $(QSTR_GLOBAL_DEPENDENCIES) | $(QSTR_GLOBAL_REQUIREMENTS)
-	$(ECHO) "GEN $@"
-	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdefs.py pp $(CPP) output $(HEADER_BUILD)/qstr.i.last cflags $(QSTR_GEN_CFLAGS) cxxflags $(QSTR_GEN_CXXFLAGS) sources $^ dependencies $(QSTR_GLOBAL_DEPENDENCIES) changed_sources $?
+# $(HEADER_BUILD)/qstr.i.last: $(SRC_QSTR) $(QSTR_GLOBAL_DEPENDENCIES) | $(QSTR_GLOBAL_REQUIREMENTS)
+# 	$(ECHO) "GEN $@"
+# 	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdefs.py pp $(CPP) output $(HEADER_BUILD)/qstr.i.last cflags $(QSTR_GEN_CFLAGS) cxxflags $(QSTR_GEN_CXXFLAGS) sources $^ dependencies $(QSTR_GLOBAL_DEPENDENCIES) changed_sources $?
 
+build/genhdr/qstr.i.last: $(SRC_QSTR) $(QSTR_DEFS) $(QSTR_GLOBAL_DEPENDENCIES)
+	$(ECHO) "QSTR $@"
+	$(Q)cat $(QSTR_DEFS) | $(CPP) -w $(filter-out -D_FORTIFY_SOURCE=2, $(CFLAGS)) -U_FORTIFY_SOURCE - | sed 's/ Q(.*)//' > $@
+	
 $(HEADER_BUILD)/qstr.split: $(HEADER_BUILD)/qstr.i.last
 	$(ECHO) "GEN $@"
 	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdefs.py split qstr $< $(HEADER_BUILD)/qstr _
@@ -170,6 +174,19 @@ $(HEADER_BUILD)/compressed.split: $(HEADER_BUILD)/qstr.i.last
 $(HEADER_BUILD)/compressed.collected: $(HEADER_BUILD)/compressed.split
 	$(ECHO) "GEN $@"
 	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdefs.py cat compress _ $(HEADER_BUILD)/compress $@
+
+# Generate qstrdefs.preprocessed.h by preprocessing collected qstrs
+$(BUILD)/qstrdefs.preprocessed.h: $(QSTR_DEFS_COLLECTED) $(PY_QSTR_DEFS) $(HEADER_BUILD)/mpversion.h
+	$(ECHO) "GEN $@"
+	$(Q)$(CPP) $(CFLAGS) -E -DNO_QSTR -P -I. -I$(PY_SRC) -I$(BUILD) -include $(PY_QSTR_DEFS) $^ > $@
+
+# Use makeqstrdata.py to generate the final qstrdefs.generated.[h|c]
+$(BUILD)/qstrdefs.generated.h $(BUILD)/qstrdefs.generated.c: $(BUILD)/qstrdefs.preprocessed.h
+	$(ECHO) "QSTR $@"
+	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdata.py $< > $@
+
+$(BUILD)/qstrdefs.generated.c: $(BUILD)/qstrdefs.preprocessed.h
+	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdata.py $< > $@
 
 # $(sort $(var)) removes duplicates
 #
@@ -238,6 +255,14 @@ PROG := $(PROG).exe
 endif
 
 all: $(BUILD)/$(PROG)
+
+	$(info TOP = $(TOP))
+	$(info PY_CORE_SRC = $(PY_CORE_SRC))
+	$(info BUILD = $(BUILD))
+	$(info OBJ = $(OBJ))
+	$(info SRC_C = $(SRC_C))
+	$(info Current Directory = $(CURDIR))
+
 
 $(BUILD)/$(PROG): $(OBJ)
 	$(ECHO) "LINK $@"

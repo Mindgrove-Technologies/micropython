@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-
+#include <stdio.h>
 #include "py/mpconfig.h"
 #include "py/misc.h"
 #include "py/runtime.h"
@@ -243,8 +243,14 @@ mp_map_elem_t *MICROPY_WRAP_MP_MAP_LOOKUP(mp_map_lookup)(mp_map_t * map, mp_obj_
 
     // get hash of index, with fast path for common case of qstr
     mp_uint_t hash;
+    if (!mp_obj_is_qstr(index)) {
+        printf("NOT a QSTR\n");
+    }
     if (mp_obj_is_qstr(index)) {
         hash = qstr_hash(MP_OBJ_QSTR_VALUE(index));
+        //printf("qstr ID = %lu\n", (unsigned long)q);
+        printf("qstr ID = %lu\n", (unsigned long)MP_OBJ_QSTR_VALUE(index));
+        printf("pool->len = %lu\n", (unsigned long)MP_STATE_VM(last_pool)->len);
     } else {
         hash = MP_OBJ_SMALL_INT_VALUE(mp_unary_op(MP_UNARY_OP_HASH, index));
     }

@@ -44,7 +44,7 @@
 #define DEBUG_PRINT (0)
 #define DEBUG_printf(...) (void)0
 #endif
-
+static void do_load_from_lexer(mp_module_context_t *context, mp_lexer_t *lex);
 #if MICROPY_ENABLE_EXTERNAL_IMPORT
 
 // Must be a string of one byte.
@@ -238,7 +238,10 @@ static void do_load(mp_module_context_t *module_obj, vstr_t *file) {
 
     #endif // MICROPY_MODULE_FROZEN
 
+    #if MICROPY_EADER_VFS
+
     qstr file_qstr = qstr_from_str(file_str);
+    #endif
 
     // If we support loading .mpy files then check if the file extension is of
     // the correct format and, if so, load and execute the file.
@@ -255,6 +258,8 @@ static void do_load(mp_module_context_t *module_obj, vstr_t *file) {
     // If we can compile scripts then load the file and compile and execute it.
     #if MICROPY_ENABLE_COMPILER
     {
+        //mp_lexer_t *lex = mp_lexer_new_from_file(file_qstr);
+        qstr file_qstr = qstr_from_str(file_str);
         mp_lexer_t *lex = mp_lexer_new_from_file(file_qstr);
         do_load_from_lexer(module_obj, lex);
         return;

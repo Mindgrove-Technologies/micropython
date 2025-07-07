@@ -182,6 +182,7 @@ static const char *find_completions(const char *s_start, size_t s_len,
         if (s_len == 0 && d_str[0] == '_') {
             continue;
         }
+        if ((s_start !=NULL ) && (d_str !=NULL)){
         if (s_len <= d_len && strncmp(s_start, d_str, s_len) == 0) {
             if (test_qstr(obj, q)) {
                 if (match_str == NULL) {
@@ -204,8 +205,13 @@ static const char *find_completions(const char *s_start, size_t s_len,
             }
         }
     }
+    else{
+    for (;;);
+    }
     return match_str;
 }
+}
+
 
 static void print_completions(const mp_print_t *print,
     const char *s_start, size_t s_len,
@@ -218,10 +224,7 @@ static void print_completions(const mp_print_t *print,
     for (qstr q = q_first; q <= q_last; ++q) {
         size_t d_len;
         const char *d_str = (const char *)qstr_data(q, &d_len);
-        // filter out words that begin with underscore unless there's already a partial match
-        if (s_len == 0 && d_str[0] == '_') {
-            continue;
-        }
+    if ((s_start !=NULL ) && (d_str !=NULL)){
         if (s_len <= d_len && strncmp(s_start, d_str, s_len) == 0) {
             if (test_qstr(obj, q)) {
                 int gap = (line_len + WORD_SLOT_LEN - 1) / WORD_SLOT_LEN * WORD_SLOT_LEN - line_len;
@@ -242,6 +245,7 @@ static void print_completions(const mp_print_t *print,
         }
     }
     mp_print_str(print, "\n");
+}
 }
 
 size_t mp_repl_autocomplete(const char *str, size_t len, const mp_print_t *print, const char **compl_str) {

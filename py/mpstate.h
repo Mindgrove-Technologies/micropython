@@ -35,7 +35,7 @@
 #include "py/obj.h"
 #include "py/objlist.h"
 #include "py/objexcept.h"
-
+//#define MP_SYS_MUTABLE_PATH_NUM 2
 // This file contains structures defining the state of the MicroPython
 // memory system, runtime and virtual machine.  The state is a global
 // variable, but in the future it is hoped that the state can become local.
@@ -160,6 +160,9 @@ typedef struct _mp_state_vm_t {
     //
 
     qstr_pool_t *last_pool;
+    //uint8_t *uart0_rxbuf; // Add this line
+    //mp_obj_t sys_mutable[MP_SYS_MUTABLE_NUM];
+    //mp_obj_t mp_sys_argv_obj;
 
     #if MICROPY_TRACKED_ALLOC
     struct _m_tracked_node_t *m_tracked_head;
@@ -201,7 +204,7 @@ typedef struct _mp_state_vm_t {
     // the qstr extraction stage also generates the root pointers header file.
     #include "genhdr/root_pointers.h"
     #endif
-
+    //const char *readline_hist[MICROPY_READLINE_HISTORY_SIZE];
     //
     // END ROOT POINTER SECTION
     ////////////////////////////////////////////////////////////

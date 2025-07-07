@@ -63,7 +63,10 @@ Q(<genexpr>)
 Q(<string>)
 Q(<stdin>)
 Q(utf-8)
-
+Q(<print>)
+Q(print)
+Q(<input>)
+Q(input)
 #if MICROPY_MODULE_FROZEN
 Q(.frozen)
 #endif

@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-#include "py/objtuple.h"
+#include "objtuple.h"
 
 #if MICROPY_PY_ATTRTUPLE || MICROPY_PY_COLLECTIONS
 

@@ -43,6 +43,8 @@
 #include "py/objmodule.h"
 #include "py/profile.h"
 #endif
+#define MICROPY_PY_IO (1)
+#define MICROPY_PY_SYS_STDFILES (1)
 
 #if MICROPY_PY_SYS
 

@@ -187,7 +187,7 @@ void qstr_init(void) {
     #endif
 }
 
-static const qstr_pool_t *find_qstr(qstr *q) {
+/*static const qstr_pool_t *find_qstr(qstr *q) {
     // search pool for this qstr
     // total_prev_len==0 in the final pool, so the loop will always terminate
     const qstr_pool_t *pool = MP_STATE_VM(last_pool);
@@ -195,8 +195,36 @@ static const qstr_pool_t *find_qstr(qstr *q) {
         pool = pool->prev;
     }
     *q -= pool->total_prev_len;
+    printf("q = %u, pool->len = %u, pool->total_prev_len = %u\n", *q, pool->len, pool->total_prev_len);
     assert(*q < pool->len);
+    // if (*q < pool->len){
+    //     assert(*q < pool->len);
+    // }
+    // else if (*q > pool->len){
+    //     assert(*q > pool->len); //should be lesser than
+    // }
+    // else{
+    //     assert(*q==pool->len);
+    // }
     return pool;
+}*/
+static const qstr_pool_t *find_qstr(qstr *q) {
+    const qstr_pool_t *pool = MP_STATE_VM(last_pool);
+    if (pool == NULL) {
+        //mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("qstr pool not initialized"));
+        printf("qstr pool not initialized\n");
+    }
+    while (*q < pool->total_prev_len) {
+        if (pool->prev == NULL) {
+            //mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("qstr index out of bounds"));
+            printf("qstr index out of bounds\n");
+        }
+        pool = pool->prev;
+    }
+    *q -= pool->total_prev_len;
+    printf("q = %u, pool->len = %u, pool->total_prev_len = %u\n", *q, pool->len, pool->total_prev_len);
+    return pool;
+    //assert(*q > pool->len); //should be lesser than
 }
 
 // qstr_mutex must be taken while in this function

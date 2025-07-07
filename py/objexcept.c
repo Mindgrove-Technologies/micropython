@@ -24,7 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+#define MICROPY_PY_ERRNO (1)
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>

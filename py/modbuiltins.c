@@ -34,10 +34,16 @@
 #include "py/runtime.h"
 #include "py/builtin.h"
 #include "py/stream.h"
+#include "py/obj.h"
 
 #if MICROPY_PY_BUILTINS_FLOAT
 #include <math.h>
 #endif
+
+#define MICROPY_PY_IO  (1)
+#define MICROPY_PY_BUILTINS_INPUT (1)
+#define MICROPY_PY_BUILTINS_OPEN (1)
+#define MICROPY_PY_SYS_STDFILES  (1)
 
 #if MICROPY_PY_IO
 extern struct _mp_dummy_t mp_sys_stdout_obj; // type is irrelevant, just need pointer
@@ -379,7 +385,7 @@ static mp_obj_t mp_builtin_pow(size_t n_args, const mp_obj_t *args) {
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_builtin_pow_obj, 2, 3, mp_builtin_pow);
 
-static mp_obj_t mp_builtin_print(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+mp_obj_t mp_builtin_print(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_sep, ARG_end, ARG_file };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_sep, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_QSTR(MP_QSTR__space_)} },

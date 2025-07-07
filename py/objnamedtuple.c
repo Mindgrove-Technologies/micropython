@@ -27,7 +27,7 @@
 
 #include <string.h>
 
-#include "py/objtuple.h"
+#include "objtuple.h"
 #include "py/runtime.h"
 #include "py/objstr.h"
 #include "py/objnamedtuple.h"

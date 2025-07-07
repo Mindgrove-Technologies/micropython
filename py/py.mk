@@ -17,9 +17,8 @@ endif
 # DEPENDENCIES: included in qstr processing; REQUIREMENTS: not included
 QSTR_GLOBAL_DEPENDENCIES += $(PY_SRC)/mpconfig.h mpconfigport.h
 QSTR_GLOBAL_REQUIREMENTS += $(HEADER_BUILD)/mpversion.h
-
 # some code is performance bottleneck and compiled with other optimization options
-CSUPEROPT = -O3
+CSUPEROPT = -Og
 
 # Enable building 32-bit code on 64-bit host.
 ifeq ($(MICROPY_FORCE_32BIT),1)
