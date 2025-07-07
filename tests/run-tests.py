@@ -16,7 +16,7 @@ import threading
 import tempfile
 
 # Maximum time to run a PC-based test, in seconds.
-TEST_TIMEOUT = 30
+TEST_TIMEOUT = float(os.environ.get('MICROPY_TEST_TIMEOUT', 30))
 
 # See stackoverflow.com/questions/2632199: __file__ nor sys.argv[0]
 # are guaranteed to always work, this one should though.
@@ -354,6 +354,7 @@ special_tests = [
         "micropython/meminfo.py",
         "basics/bytes_compare3.py",
         "basics/builtin_help.py",
+        "misc/sys_settrace_cov.py",
         "thread/thread_exc2.py",
         "ports/esp32/partition_ota.py",
     )
