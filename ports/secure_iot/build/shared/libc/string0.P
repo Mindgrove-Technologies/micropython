@@ -1,0 +1,8 @@
+build/shared/libc/string0.o: ../../shared/libc/string0.c \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdint.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdint-gcc.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stddef.h
+../../shared/libc/string0.c :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdint.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdint-gcc.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stddef.h :

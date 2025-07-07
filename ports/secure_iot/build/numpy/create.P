@@ -1,0 +1,126 @@
+build/numpy/create.o: numpy/create.c \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/math.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/reent.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/_ansi.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/newlib.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/_newlib_version.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/config.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/ieeefp.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/features.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stddef.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_types.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/_types.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/_default_types.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/lock.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/cdefs.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/_ansi.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/stdio.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdarg.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/types.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_stdint.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/endian.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/_endian.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/select.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_sigset.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_timeval.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/timespec.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_timespec.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_pthreadtypes.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/sched.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/types.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/stdio.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/stdio.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/ssp.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/stdlib.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/stdlib.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/alloca.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/stdlib.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/string.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_locale.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/strings.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/strings.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/string.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/string.h \
+ ../../py/obj.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/assert.h \
+ ../../py/mpconfig.h mpconfigport.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdint.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/stdint.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_intsup.h \
+ ../../py/misc.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdbool.h \
+ ../../py/qstr.h build/genhdr/qstrdefs.generated.h ../../py/mpprint.h \
+ ../../py/runtime0.h ../../py/runtime.h ../../py/mpstate.h \
+ ../../py/mpthread.h ../../py/nlr.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include-fixed/limits.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include-fixed/syslimits.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/limits.h \
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/syslimits.h \
+ ../../py/objlist.h ../../py/objexcept.h ../../py/objtuple.h \
+ build/genhdr/root_pointers.h ../../py/pystack.h ../../py/cstack.h \
+ numpy/create.h numpy/../ulab.h numpy/../ndarray.h ../../py/objarray.h \
+ ../../py/binary.h ../../py/objstr.h numpy/../ulab.h \
+ numpy/../ulab_tools.h numpy/../ndarray.h
+numpy/create.c :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/math.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/reent.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/_ansi.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/newlib.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/_newlib_version.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/config.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/ieeefp.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/features.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stddef.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_types.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/_types.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/_default_types.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/lock.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/cdefs.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/_ansi.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/stdio.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdarg.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/types.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_stdint.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/endian.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/_endian.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/select.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_sigset.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_timeval.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/timespec.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_timespec.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_pthreadtypes.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/sched.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/types.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/stdio.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/stdio.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/ssp.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/stdlib.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/machine/stdlib.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/alloca.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/stdlib.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/string.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_locale.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/strings.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/strings.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/string.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/ssp/string.h :
+ ../../py/obj.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/assert.h :
+ ../../py/mpconfig.h mpconfigport.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdint.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/stdint.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/_intsup.h :
+ ../../py/misc.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include/stdbool.h :
+ ../../py/qstr.h build/genhdr/qstrdefs.generated.h ../../py/mpprint.h :
+ ../../py/runtime0.h ../../py/runtime.h ../../py/mpstate.h :
+ ../../py/mpthread.h ../../py/nlr.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include-fixed/limits.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/lib/gcc/riscv64-unknown-elf/10.2.0/include-fixed/syslimits.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/limits.h :
+ /home/biancaa/Downloads/riscv_64/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/riscv64-unknown-elf/include/sys/syslimits.h :
+ ../../py/objlist.h ../../py/objexcept.h ../../py/objtuple.h :
+ build/genhdr/root_pointers.h ../../py/pystack.h ../../py/cstack.h :
+ numpy/create.h numpy/../ulab.h numpy/../ndarray.h ../../py/objarray.h :
+ ../../py/binary.h ../../py/objstr.h numpy/../ulab.h :
+ numpy/../ulab_tools.h numpy/../ndarray.h :

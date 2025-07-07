@@ -1,0 +1,2 @@
+build/shared/libc/__errno.o: ../../shared/libc/__errno.c
+../../shared/libc/__errno.c :
