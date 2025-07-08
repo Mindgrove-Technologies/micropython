@@ -33,7 +33,7 @@
 #include "wdtimer.h"
 #include "io.h"
 #include "py/runtime.h"
-
+#include "dynruntime.h"
 
 #define STATIC static
 
@@ -73,6 +73,7 @@ static machine_wdt_obj_t *mp_machine_wdt_make_new_instance(mp_int_t id, mp_int_t
             //disables automatic WDT feeding by the system task loop.
             //system_soft_wdt_feed();//actual SDK/API call to reset the watchdog.
             wdtimer_reset(); //should call start internally
+            mp_printf(&mp_plat_print, "Watch dog timer instance created and fed\n");
             //immediately feeds the WDT (resets the counter).
             //Then returns the singleton WDT object.
             return &wdt_default; //similar to write in uart
@@ -96,9 +97,11 @@ STATIC mp_obj_t mp_machine_wdt_make_new(const mp_obj_type_t *type, size_t n_args
 static void mp_machine_wdt_feed(machine_wdt_obj_t *self) {
     (void)self;
     //system_soft_wdt_feed();
-    //wdtimer_reset();
-    wdtimer_disable();
+    wdtimer_reset();
+    mp_printf(&mp_plat_print, "watch dog timer fed\n"); //for debug
+    //wdtimer_disable();
     //for testing disable the wdt and do not enable it
+    //cant test it in FPGA
 }
 
     STATIC const mp_rom_map_elem_t machine_wdt_locals_dict_table[] = {
