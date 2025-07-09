@@ -162,3 +162,13 @@ typedef long mp_off_t;
 //--------------------------------------------------------------------------------
 //for removing the complex value dependency
 #define MICROPY_PY_BUILTINS_COMPLEX   (1)
+//--------------------------------------------------------------------------------
+//for trampoline to external interrupt support
+//scheduling of interrupts
+#define MICROPY_ENABLE_SCHEDULER (1)
+#define MICROPY_SCHEDULER_DEPTH (8)
+#define MICROPY_PORT_ROOT_POINTERS \
+    mp_obj_t keyboard_interrupt_obj; \
+    mp_obj_t sched_queue[MICROPY_SCHEDULER_DEPTH]; \
+    volatile uint8_t sched_len; \
+    volatile uint8_t sched_idx;

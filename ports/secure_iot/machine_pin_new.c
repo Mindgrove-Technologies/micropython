@@ -33,7 +33,20 @@ const machine_pin_obj_t machine_pin_obj[NUM_PINS] = {
     {{&machine_pin_type}, 8}, {{&machine_pin_type}, 9}, {{&machine_pin_type},10}, {{&machine_pin_type},11},
     {{&machine_pin_type},12}, {{&machine_pin_type},13}, {{&machine_pin_type},14}, {{&machine_pin_type},15},
 };
+//setting up the trampoline
+/*A trampoline is a small C function that acts as a bridge:
+It is called as a hardware ISR.
+Inside, it uses the MicroPython API to call a user-supplied Python callback (stored in a global or struct).*/
+//global handlers
+mp_obj_t saved_handler[MAX_GPIO_PINS];
 
+void gpio_trampoline(void *arg) {
+    int pin = (int)(uintptr_t)arg;
+
+    if (saved_handler[pin] != MP_OBJ_NULL) {
+        mp_sched_schedule(saved_handler[pin], MP_OBJ_NEW_SMALL_INT(pin));
+    }
+}
 void handle_button_press(void*arg)
 {
     int num = (int)((int*)(arg));
@@ -206,6 +219,7 @@ static mp_obj_t machine_pin_interrupt_helper(machine_pin_obj_t *self,size_t n_ar
     int trigger = args_parsed[ARG_trigger].u_int;
     printf("trigger ,%d",trigger);
     //it is taking the value (Checked)
+    int num=self->pin;
     uint8_t s =PLIC_Init();
     if(s==0){
         printf("Plic initialized");
@@ -214,10 +228,9 @@ static mp_obj_t machine_pin_interrupt_helper(machine_pin_obj_t *self,size_t n_ar
     if (self == NULL || self->pin >= MAX_GPIO_PINS) {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid pin object"));
     }
-    if (n_args == 2 | n_args==1) {
+    if (n_args == 2 || n_args==1) {
         // use default handler
-        if (trigger ==0 | trigger==1){
-            int num=self->pin;
+        if (trigger ==0 || trigger==1){
             printf("pin number ,%d",num);//not corrupted
             GPIO_Interrupt_Config(num,0);
             PLIC_Config_t plic_config;
@@ -238,33 +251,43 @@ static mp_obj_t machine_pin_interrupt_helper(machine_pin_obj_t *self,size_t n_ar
             IRQ_Connect(&plic_config);//set the corresponding isr for interrupt id 6
             printf("Completed IRQ Connect\n\r");
         }
+    }
     else {
         mp_const_obj_t handler;
         // Use a custom handler
+        GPIO_Interrupt_Config(num,trigger);
+        PLIC_Config_t plic_config;
         plic_config.fptr=handle_button_press; //the issue could be with handler 
         if (args_parsed[ARG_handler].u_obj != mp_const_none) {
-                handler = args_parsed[ARG_handler].u_obj;
+                saved_handler[self->pin] = args_parsed[ARG_handler].u_obj;
+                //handler = args_parsed[ARG_handler].u_obj; //(No hell no)
                 //To do create trampoline wrapper for this.
+                plic_config.fptr = gpio_trampoline;
+                int pin=self->pin;
+                //just for checking
+                printf("Trampoline: pin=%d, handler=%p\n", pin, saved_handler[pin]);
         }
         else{
             if(trigger ==0){
                 handler=handle_button_press;
                 //handler same for button press and button release now
+                plic_config.fptr=handler;
             }
             if(trigger==1){
-                handler=handle_button_press;
+                handler=handle_button_release;
                 //handler same for button press and button release now
+                plic_config.fptr=handler;
             }
         }
         if (trigger ==0 || trigger==1){
             int num=self->pin;
             //the pin number
-            GPIO_Interrupt_Config(num,trigger);
-            PLIC_Config_t plic_config;
             //plic config structure
             plic_config.interrupt_id=GPIO0_IRQn+num;
-            plic_config.fptr=handler;
             interrupt_arg[GPIO0_IRQn+num]=(void *)num;/*To pass argument to ISR function (comment this if not required)*/
+            if (args_parsed[ARG_handler].u_obj != mp_const_none){
+                interrupt_arg[GPIO0_IRQn + num] = (void *)(uintptr_t)num;
+            }
             plic_config.priority_value=PLIC_PRIORITY_3;/*Priority for this ISR function*/
             IRQ_Connect(&plic_config);//set the corresponding isr for interrupt id 6
             printf("Completed IRQ Connect\n\r");
@@ -272,6 +295,7 @@ static mp_obj_t machine_pin_interrupt_helper(machine_pin_obj_t *self,size_t n_ar
     }
     return mp_const_none;
 }
+
 
 static mp_obj_t machine_pin_interrupt(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
     return machine_pin_interrupt_helper(MP_OBJ_TO_PTR(args[0]), n_args - 1, args + 1, kw_args);

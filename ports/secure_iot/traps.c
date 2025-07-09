@@ -31,9 +31,15 @@
 #include "secure_iot.h"
 #include "encoding.h"
 #include "plic.h"
+#include "mpstate.h"
+#include  <stdbool.h>
 
+extern sched_len;
 extern plic_fptr_t isr_table[PLIC_MAX_INTERRUPT_SRC]; //isr_table maps interrupt IDs to function pointers.
 extern interrupt_data_t hart0_interrupt_matrix[PLIC_MAX_INTERRUPT_SRC];
+extern mp_state_ctx_t mp_state_ctx;
+extern  mp_state_ctx_t;
+#define MP_STATE_VM(x) (mp_state_ctx.vm.x)
 
 #define PLIC_CLAIM_OFFSET               0x200004UL
 mtrap_fptr_t mcause_trap_table[MAX_TRAP_VALUE];
@@ -148,10 +154,22 @@ uintptr_t Trap_Handler(uintptr_t cause, uintptr_t epc)
         if (isr_table[interrupt_id]) {
             isr_table[interrupt_id](interrupt_arg[interrupt_id]);
         }
-
+		//mp_handle_pending();
+        //mp_handle_pending(false);
+		if (MP_STATE_VM(sched_len) > 0) {
+    		// There is at least one pending scheduled handler
+    		mp_handle_pending(false);  // false = don't raise exceptions
+			*claim_addr = interrupt_id; // acknowledge
+			hart0_interrupt_matrix[interrupt_id].state = SERVICED;
+			hart0_interrupt_matrix[interrupt_id].count++;
+		}
+        //so the interrupt is handled on the fly without creating exceptions
+        //just to ensure no interrupt is pending
+		else{
         *claim_addr = interrupt_id; // acknowledge
 		hart0_interrupt_matrix[interrupt_id].state = SERVICED;
 		hart0_interrupt_matrix[interrupt_id].count++;
+		}
 
     }
 		//----------------------------------------------------------------------------------------------
