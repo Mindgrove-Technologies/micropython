@@ -14,7 +14,7 @@
  * @date 2024-10-08
  * @copyright Copyright (c) Mindgrove Technologies Pvt. Ltd 2024. All rights reserved.  
  */
-//#include "ehh.h"
+
 
 #ifndef PLIC_H
 #define PLIC_H
@@ -31,7 +31,7 @@ extern "C" {
 #include "stddef.h"
 #include"errors.h"
 
-#define PLIC_MAX_INTERRUPT_SRC  58 //Max number of interrupts supported
+#define PLIC_MAX_INTERRUPT_SRC  82 //78
 
 extern void *interrupt_arg[];
 
@@ -55,7 +55,7 @@ typedef enum
 	INACTIVE = 0,
 	ACTIVE   = 1,
 	SERVICED = 2,
-	MASKED 
+	MASKED
 }interrupt_status_e;
 
 /* Structures and Unions */
@@ -66,7 +66,7 @@ typedef struct
 	
 	uint32_t priority; /*priority assigned to it*/
 	
-	interrupt_status_e state; /*state of the interrupt --> Active ,inactive mathiri*/ 
+	interrupt_status_e state; /*state of the interrupt*/
 	
 	uint32_t count; /*number of times this interrupt occured*/
 
@@ -76,7 +76,7 @@ typedef struct
    Each entry in the table corresponds to an interrupt service routine */
 
 typedef void (*plic_fptr_t) (uint64_t);
-extern plic_fptr_t isr_table[PLIC_MAX_INTERRUPT_SRC]; //isr_table maps interrupt IDs to function pointers.
+extern plic_fptr_t isr_table[PLIC_MAX_INTERRUPT_SRC];
 
 
 typedef struct
@@ -85,7 +85,7 @@ typedef struct
 
   uint32_t priority_value;//priority assigned to it.
   
-  void* fptr;//Function pointer points the ISR function. --> // Pointer to the ISR routine so different isrs like NVIC
+  void* fptr;//Function pointer points the ISR function.
  
 } PLIC_Config_t;
  
@@ -106,7 +106,7 @@ typedef struct
  */
 
 void PLIC_Handler(uintptr_t int_id);
-// Main interrupt handler
+
 /** @fn void INTERRUPT_Enable(uint32_t interrupt_id)
  * 
  * @brief Enable the interrupt
@@ -114,7 +114,6 @@ void PLIC_Handler(uintptr_t int_id);
  * @details A single bit that enables an interrupt. The bit position corresponds to the interrupt id
  * 
  * @param uint32_t interrupt_id
- * //Calls the appropriate ISR via isr_table[int_id].
  */
 
 void INTERRUPT_Enable(uint32_t interrupt_id);
@@ -140,7 +139,7 @@ uint8_t INTERRUPT_Disable(uint32_t interrupt_id);
  * @param uint32_t priority_value
  */
 
-uint8_t INTERRUPT_Threshold(uint32_t priority_value); //Sets a priority threshold. Only interrupts ≥ this priority will be taken.
+uint8_t INTERRUPT_Threshold(uint32_t priority_value);
 
 /** @fn void PLIC_Init()
  * 
@@ -170,13 +169,7 @@ uint8_t PLIC_Init();
  */
 
 uint8_t IRQ_Connect(PLIC_Config_t *plic_config);
-/*Registers the ISR in the isr_table.
 
-Sets its priority.
-
-Enables the interrupt line in the PLIC.
-
-Enables global interrupts.*/
 
 
 #ifdef __cplusplus

@@ -1,10 +1,19 @@
 #include "py/runtime.h"
 #include "py/mphal.h"
 #include "modmachine.h"
+#include "gpio.h"
+#include "secure_iot.h"
+//for interrupt:
+#include "io.h"
+#include "log.h"
+#include "plic.h"
+#include "gptimer.h"
 //#include "pin.h"
 //#include "pin_defs_mind.h"
 // Define the number of GPIO pins available on your MCU
 #define NUM_PINS 16
+#define MAX_GPIO_PINS 44
+//As the count goes from 0-44
 extern const mp_obj_type_t machine_pin_type;
 
 typedef struct _machine_pin_obj_t {
@@ -17,6 +26,7 @@ static mp_obj_t machine_pin_make_new(const mp_obj_type_t *type, size_t n_args, s
 static void machine_pin_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind);
 
 // Pin object array (adjust NUM_PINS as needed)
+//probably as possible alternate function and if true or false can be added to the pin object?
 const machine_pin_obj_t machine_pin_obj[NUM_PINS] = {
     {{&machine_pin_type}, 0}, {{&machine_pin_type}, 1}, {{&machine_pin_type}, 2}, {{&machine_pin_type}, 3},
     {{&machine_pin_type}, 4}, {{&machine_pin_type}, 5}, {{&machine_pin_type}, 6}, {{&machine_pin_type}, 7},
@@ -24,6 +34,27 @@ const machine_pin_obj_t machine_pin_obj[NUM_PINS] = {
     {{&machine_pin_type},12}, {{&machine_pin_type},13}, {{&machine_pin_type},14}, {{&machine_pin_type},15},
 };
 
+void handle_button_press(void*arg)
+{
+    int num = (int)((int*)(arg));
+	printf("Button pressed is %d\n",num);
+    //printf("ehhh");
+	//GPT_Delay_Millisecs_H(100); // delay to adjust debounce time for button interrupt. Comment this if not needed.
+    __asm__ volatile("nop");
+    __asm__ volatile("nop");
+    __asm__ volatile("nop");
+}
+
+void handle_button_release(void*arg)
+{
+    int num = (int)((int*)(arg));
+	printf("Button released is %d\n",num);
+	//GPT_Delay_Millisecs_H(100); // delay to adjust debounce time for button interrupt. Comment this if not needed.
+    __asm__ volatile("nop");
+    __asm__ volatile("nop");
+    __asm__ volatile("nop");
+
+}
 // Helper to get pin object from Python argument
 static machine_pin_obj_t *mp_obj_get_pin_obj(mp_obj_t pin_in) {
     if (mp_obj_is_type(pin_in, &machine_pin_type)) {
@@ -47,6 +78,7 @@ static void machine_pin_print(const mp_print_t *print, mp_obj_t self_in, mp_prin
 // Pin init: pin.init(mode, *, value)
 static mp_obj_t machine_pin_obj_init_helper(machine_pin_obj_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_mode, ARG_value };
+    //p is the created object so the pin number should take a valid number.
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_mode, MP_ARG_REQUIRED | MP_ARG_INT },
         { MP_QSTR_value, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
@@ -56,17 +88,20 @@ static mp_obj_t machine_pin_obj_init_helper(machine_pin_obj_t *self, size_t n_ar
 
     int mode = args[ARG_mode].u_int;
     int value = (args[ARG_value].u_obj == MP_OBJ_NULL) ? -1 : mp_obj_is_true(args[ARG_value].u_obj);
+    if (self == NULL || self->pin >= MAX_GPIO_PINS) {
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid pin object"));
+    }
 
     // Set mode (replace with your hardware function)
     if (mode == 0) { // Input
         //mp_hal_pin_input(self->pin_num);
-        GPIO_Config(1,1,self->pin);
+        GPIO_Config(0,1,self->pin);
     } else if (mode == 1) { // Output
         //mp_hal_pin_output(self->pin_num);
-        GPIO_Config(0,1,self->pin);
+        GPIO_Config(1,1,self->pin);
         if (value != -1) {
             //mp_hal_pin_write(self->pin_num, value);
-            if(mp_obj_is_true(value)){
+            if((value)){
                 uint8_t success =GPIO_Pin_Set(1,self->pin);
             }
             else{
@@ -114,6 +149,135 @@ static mp_obj_t machine_pin_call(mp_obj_t self_in, size_t n_args, size_t n_kw, c
         return mp_const_none;
     }
 }
+/*For the interrupt logic:
+def callback(pin):
+    print("Interrupt on", pin)
+p.irq(handler=callback, trigger=Pin.IRQ_RISING)
+If the handler is not provided we have to assign the default handler to the interrupt
+*/
+static mp_obj_t machine_pin_interrupt_helper(machine_pin_obj_t *self,size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args){//const mp_obj_t *all_args) {
+
+    //mp_arg_check_num(n_args, n_kw, 1, 2, false);
+    //machine_pin_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    //machine_pin_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
+    enum { ARG_trigger, ARG_handler };
+    //p is the created object so the pin number should take a valid number.
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_trigger, MP_ARG_REQUIRED | MP_ARG_INT },
+        { MP_QSTR_handler, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        //2nd one is a maybe
+    };
+    mp_arg_val_t args_parsed[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args_parsed);
+    //--------------------------------------------------------------------------------------------------------
+    //     printf("Positional args (%d):\n", (int)n_args);
+    // for (size_t i = 0; i < n_args; ++i) {
+    //     mp_obj_print_helper(&mp_plat_print, args_parsed[i], PRINT_REPR);
+    //     printf("\n");
+    // }
+    /*
+    for (size_t i = 0; i < MP_ARRAY_SIZE(allowed_args); ++i) {
+    if (allowed_args[i].flags & MP_ARG_INT) {
+        printf("arg[%d] = %d\n", (int)i, args_parsed[i].u_int);
+    } else if (allowed_args[i].flags & MP_ARG_OBJ) {
+        printf("arg[%d] = ", (int)i);
+        mp_obj_print_helper(&mp_plat_print, args_parsed[i].u_obj, PRINT_REPR);
+        printf("\n");
+    }
+    }
+
+
+    if (kw_args != NULL && kw_args->used > 0) {
+        printf("Keyword args:\n");
+    for (size_t i = 0; i < kw_args->alloc; ++i) {
+        if (mp_map_slot_is_filled(kw_args, i)) {
+            mp_map_elem_t *elem = &kw_args->table[i];
+            mp_obj_print_helper(&mp_plat_print, elem->key, PRINT_REPR);
+            printf(" : ");
+            mp_obj_print_helper(&mp_plat_print, elem->value, PRINT_REPR);
+            printf("\n");
+        }
+    }
+}*/
+//-----------------------------------------------------------------------
+    //mp_map_t kw_args;
+    //mp_map_init_fixed_table(&kw_args,n_kw,all_args+n_args);
+    //mp_arg_parse_all(n_args, all_args, &kw_args,MP_ARRAY_SIZE(allowed_args), allowed_args, args_parsed);
+    int trigger = args_parsed[ARG_trigger].u_int;
+    printf("trigger ,%d",trigger);
+    //it is taking the value (Checked)
+    uint8_t s =PLIC_Init();
+    if(s==0){
+        printf("Plic initialized");
+    }
+    //int  = (args[ARG_value].u_obj == MP_OBJ_NULL) ? -1 : mp_obj_is_true(args[ARG_value].u_obj);
+    if (self == NULL || self->pin >= MAX_GPIO_PINS) {
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid pin object"));
+    }
+    if (n_args == 2 | n_args==1) {
+        // use default handler
+        if (trigger ==0 | trigger==1){
+            int num=self->pin;
+            printf("pin number ,%d",num);//not corrupted
+            GPIO_Interrupt_Config(num,0);
+            PLIC_Config_t plic_config;
+            //plic config structure
+            plic_config.fptr=handle_button_press; //the issue could be with handler            
+            plic_config.interrupt_id=GPIO0_IRQn+num;
+            if(trigger ==0){
+                plic_config.fptr=handle_button_press;
+                //handler same for button press and button release now
+            }
+            if(trigger==1){
+                plic_config.fptr=handle_button_release;
+                //handler same for button press and button release now
+            }
+
+            interrupt_arg[GPIO0_IRQn+num]=(void *)num;/*To pass argument to ISR function (comment this if not required)*/
+            plic_config.priority_value=PLIC_PRIORITY_3;/*Priority for this ISR function*/
+            IRQ_Connect(&plic_config);//set the corresponding isr for interrupt id 6
+            printf("Completed IRQ Connect\n\r");
+        }
+    else {
+        mp_const_obj_t handler;
+        // Use a custom handler
+        plic_config.fptr=handle_button_press; //the issue could be with handler 
+        if (args_parsed[ARG_handler].u_obj != mp_const_none) {
+                handler = args_parsed[ARG_handler].u_obj;
+                //To do create trampoline wrapper for this.
+        }
+        else{
+            if(trigger ==0){
+                handler=handle_button_press;
+                //handler same for button press and button release now
+            }
+            if(trigger==1){
+                handler=handle_button_press;
+                //handler same for button press and button release now
+            }
+        }
+        if (trigger ==0 || trigger==1){
+            int num=self->pin;
+            //the pin number
+            GPIO_Interrupt_Config(num,trigger);
+            PLIC_Config_t plic_config;
+            //plic config structure
+            plic_config.interrupt_id=GPIO0_IRQn+num;
+            plic_config.fptr=handler;
+            interrupt_arg[GPIO0_IRQn+num]=(void *)num;/*To pass argument to ISR function (comment this if not required)*/
+            plic_config.priority_value=PLIC_PRIORITY_3;/*Priority for this ISR function*/
+            IRQ_Connect(&plic_config);//set the corresponding isr for interrupt id 6
+            printf("Completed IRQ Connect\n\r");
+    }
+    }
+    return mp_const_none;
+}
+
+static mp_obj_t machine_pin_interrupt(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    return machine_pin_interrupt_helper(MP_OBJ_TO_PTR(args[0]), n_args - 1, args + 1, kw_args);
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_KW(machine_pin_interrupt_obj, 1, machine_pin_interrupt);
 
 // Pin.value([value])
 static mp_obj_t machine_pin_value(size_t n_args, const mp_obj_t *args) {
@@ -151,9 +315,13 @@ static const mp_rom_map_elem_t machine_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_value), MP_ROM_PTR(&machine_pin_value_obj) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&machine_pin_on_obj) },
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&machine_pin_off_obj) },
+    { MP_ROM_QSTR(MP_QSTR_irq), MP_ROM_PTR(&machine_pin_interrupt_obj) },
     // Class constants
     { MP_ROM_QSTR(MP_QSTR_IN), MP_ROM_INT(0) },
     { MP_ROM_QSTR(MP_QSTR_OUT), MP_ROM_INT(1) },
+    { MP_ROM_QSTR(MP_QSTR_LOW), MP_ROM_INT(0) },
+    { MP_ROM_QSTR(MP_QSTR_HIGH), MP_ROM_INT(1) },
+    // So low and high has to point to the corresponding values of 0 and 1 
 };
 static MP_DEFINE_CONST_DICT(machine_pin_locals_dict, machine_pin_locals_dict_table);
 

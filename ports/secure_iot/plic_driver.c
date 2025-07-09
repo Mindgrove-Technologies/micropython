@@ -16,7 +16,7 @@
  */
 
 #include "plic.h"
-//#include "ehh.h"
+
 
 /* Macros */
 
@@ -44,33 +44,34 @@
 /*
    Global interrupt data maintenance structure
  */
+extern uint16_t interrupt_id;
 plic_fptr_t isr_table[PLIC_MAX_INTERRUPT_SRC];
 interrupt_data_t hart0_interrupt_matrix[PLIC_MAX_INTERRUPT_SRC];
 void *interrupt_arg[PLIC_MAX_INTERRUPT_SRC];
 
 inline static void INTERRUPT_Complete(uint32_t interrupt_id)
 {
-	//log_emit(TRACE,"INTERRUPT_Complete entered\n\r");
+	log_trace("\nINTERRUPT_Complete entered\n");
 
 	
-	volatile uint32_t *claim_addr =  (uint32_t *) (PLIC_BASE +
+	uint32_t *claim_addr =  (uint32_t *) (PLIC_BASE +
 					      PLIC_CLAIM_OFFSET);
 
 	*claim_addr = interrupt_id;
 	hart0_interrupt_matrix[interrupt_id].state = SERVICED;
 	hart0_interrupt_matrix[interrupt_id].count++;
 
-	//log_emit(DEBUG,"Interrupt ID %d, state changed to %d\n\r", interrupt_id,
-		  //hart0_interrupt_matrix[interrupt_id].state);
+	log_debug("interrupt id %d, state changed to %d\n", interrupt_id,
+		  hart0_interrupt_matrix[interrupt_id].state);
 
-	/*//log_emit(DEBUG,"Interrupt ID = %x \n\r Reset to default values state = %x \
-		  \n\r Priority = %x\n\r Count = %x\n\r", \
+	log_debug("interrupt id = %x \n reset to default values state = %x \
+		  \n priority = %x\n count = %x\n", \
 		  hart0_interrupt_matrix[interrupt_id].id, \
 		  hart0_interrupt_matrix[interrupt_id].state, \
 		  hart0_interrupt_matrix[interrupt_id].priority, \
-		  hart0_interrupt_matrix[interrupt_id].count);*/
+		  hart0_interrupt_matrix[interrupt_id].count);
 
-	//log_emit(TRACE,"INTERRUPT_Complete exited\n\r");
+	log_trace("INTERRUPT_Complete exited\n");
 }
 
 /** @fn uint32_t INTERRUPT_Claim_Request()
@@ -81,10 +82,10 @@ inline static void INTERRUPT_Complete(uint32_t interrupt_id)
  */
 inline static uint32_t INTERRUPT_Claim_Request()
 {
-	volatile uint32_t *interrupt_claim_address = NULL;
+	uint32_t *interrupt_claim_address = NULL;
 	// uint32_t interrupt_id;
 
-	//log_emit(TRACE,"INTERRUPT_Claim_Request entered\n\r");
+	log_trace("\nINTERRUPT_Claim_Request entered\n");
 
 	/*
 	   return the interrupt id. This will be used to index into the plic isr table.
@@ -97,45 +98,46 @@ inline static uint32_t INTERRUPT_Claim_Request()
 	interrupt_claim_address = (uint32_t *)(PLIC_BASE +
 					       PLIC_CLAIM_OFFSET);
 
-	int  interrupt_id = *interrupt_claim_address;  //My uncommenting because I didnt get the head and tail ,just the body
+	// interrupt_id = *interrupt_claim_address;
 
-	//log_emit(DEBUG,"interrupt id [%08x] claimed  at address %08x\n\r", interrupt_id,
-		  //interrupt_claim_address );
+	log_debug("interrupt id [%x] claimed  at address %x\n", interrupt_id,
+		  interrupt_claim_address );
 
-	//log_emit(TRACE,"INTERRUPT_Claim_Request exited\n\r");
+	log_trace("INTERRUPT_Claim_Request exited\n");
 
 	return interrupt_id;
 }
 
 
-void PLIC_Handler(uintptr_t interrupt_id)
+void PLIC_Handler( __attribute__((unused)) uintptr_t int_id)
 {
+	uint32_t  interrupt_id;
 
-	//log_emit(TRACE,"PLIC_Handler entered\n\r");
+	log_trace("\nPLIC_Handler entered\n");
 
 	interrupt_id = INTERRUPT_Claim_Request();
 
-	//log_emit(DEBUG,"Interrupt ID claimed = %x\n\r", interrupt_id);
+	log_debug("interrupt id claimed = %x\n", interrupt_id);
 
 	if (interrupt_id <= 0 || interrupt_id > PLIC_MAX_INTERRUPT_SRC)
 	{
-		//log_emit(FATAL,"Fatal error, interrupt id [%08x] claimed is wrong\n\r", interrupt_id);
+		log_fatal("Fatal error, interrupt id [%x] claimed is wrong\n", interrupt_id);
 	}
 
 	/*change state to active*/
 	hart0_interrupt_matrix[interrupt_id].state = ACTIVE;
 
-	//log_emit(DEBUG," Interrupt ID %d, state changed to %d\n\r",
-		  //interrupt_id,hart0_interrupt_matrix[interrupt_id].state);
+	log_debug("interrupt id %d, state changed to %d\n",
+		  interrupt_id,hart0_interrupt_matrix[interrupt_id].state);
 
 	/*call relevant interrupt service routine*/
 	isr_table[interrupt_id]((uint64_t)interrupt_arg[interrupt_id]);
 
 	INTERRUPT_Complete(interrupt_id);
 
-	//log_emit(DEBUG,"Interrupt ID %d completed. \n\r", interrupt_id);
+	log_debug("interrupt id %d complete \n", interrupt_id);
 
-	//log_emit(TRACE,"PLIC_Handler exited\n\r");
+	log_trace("\nPLIC_Handler exited\n");
 }
 
 /** @fn uint32_t ISR_Default(uint32_t interrupt_id) 
@@ -146,7 +148,7 @@ void PLIC_Handler(uintptr_t interrupt_id)
  */
 static inline void ISR_Default(uint64_t interrupt_id)
 {
-	//log_emit(TRACE,"ISR_Default entered\n\r");
+	log_trace("\nISR_Default entered\n");
 
 	if( interrupt_id > 0 && interrupt_id < 7 )  //PWM Interrupts
 	{
@@ -162,9 +164,9 @@ static inline void ISR_Default(uint64_t interrupt_id)
 */
 	}
 
-	//log_emit(INFO,"Interrupt [%d] serviced\n\r",interrupt_id);
+	log_info("interrupt [%d] serviced\n",interrupt_id);
 
-	//log_emit(TRACE,"ISR_Default exited\n\r");
+	log_trace("\nISR_Default exited\n");
 }
 
 
@@ -173,11 +175,11 @@ void INTERRUPT_Enable(uint32_t interrupt_id)
 	uint32_t *interrupt_enable_addr;
 	uint32_t current_value = 0x00, new_value;
 
-	//log_emit(TRACE,"INTERRUPT_Enable entered \n\r");
+	log_trace("\nINTERRUPT_Enable entered \n");
 
-	//log_emit(INFO,"Interrupt ID = %04x\n\r", interrupt_id);
+	log_info("interrupt_id = %x\n", interrupt_id);
 
-	//log_emit(DEBUG,"PLIC BASE ADDRESS = %08x, PLIC ENABLE OFFSET = %08x\n\r" \
+	log_debug("PLIC BASE ADDRESS = %x, PLIC ENABLE OFFSET = %x\n" \
 			,PLIC_BASE, PLIC_ENABLE_OFFSET);
 	
 	interrupt_enable_addr = (uint32_t *) (PLIC_BASE +
@@ -186,7 +188,7 @@ void INTERRUPT_Enable(uint32_t interrupt_id)
 
 	current_value = *interrupt_enable_addr;
 
-	//log_emit(INFO,"interrupt_enable_addr = %08x current_value = %08x \n\r", \
+	log_info("interrupt_enable_addr = %x current_value = %x \n", \
 			interrupt_enable_addr, current_value);
 
 	/*set the bit corresponding to the interrupt src*/
@@ -194,23 +196,23 @@ void INTERRUPT_Enable(uint32_t interrupt_id)
 
 	*((uint32_t*)interrupt_enable_addr) = new_value;
 
-	//log_emit(DEBUG,"Interrupt Value = %x\n\r", new_value);
+	log_debug("value read: new_value = %x\n", new_value);
 
-	//log_emit(TRACE,"INTERRUPT_Enable exited \n\r");
+	log_trace("\nINTERRUPT_Enable exited \n");
 
 }
 
 uint8_t INTERRUPT_Disable(uint32_t interrupt_id)
 {
-	volatile uint32_t *interrupt_disable_addr = 0;
+	uint32_t *interrupt_disable_addr = 0;
 	uint32_t current_value = 0x00, new_value;
 
-	//log_emit(TRACE,"INTERRUPT_Disable entered \n\r");
+	log_trace("\nINTERRUPT_Disable entered \n");
 
-	//log_emit(DEBUG,"Interrupt ID = %04x\n\r", interrupt_id);
+	log_debug("interrupt_id = %x\n", interrupt_id);
 
-	//log_emit(DEBUG,"PLIC BASE ADDRESS = %08x, PLIC ENABLE OFFSET = %08x interrupt_id = %08x\n\r",
-				  //PLIC_BASE, PLIC_ENABLE_OFFSET,interrupt_id);
+	log_debug("PLIC BASE ADDRESS = %x, PLIC ENABLE OFFSET = %x interrupt_id = %x\n",
+				  PLIC_BASE, PLIC_ENABLE_OFFSET,interrupt_id);
 
 	interrupt_disable_addr = (uint32_t *) (PLIC_BASE +
 					      PLIC_ENABLE_OFFSET +
@@ -218,8 +220,8 @@ uint8_t INTERRUPT_Disable(uint32_t interrupt_id)
 
 	current_value = *interrupt_disable_addr;
 
-	//log_emit(DEBUG,"interrupt_disable_addr = %08x, current_value = %08x \n\r",
-		  //interrupt_disable_addr, current_value);
+	log_debug("interrupt_disable_addr = %x current_value = %x \n",
+		  interrupt_disable_addr, current_value);
 
 	/*unset the bit corresponding to the interrupt src*/
 	new_value = current_value & (~(0x1 << (interrupt_id % 32)));
@@ -228,10 +230,10 @@ uint8_t INTERRUPT_Disable(uint32_t interrupt_id)
 
 	hart0_interrupt_matrix[interrupt_id].state = INACTIVE;
 
-	//log_emit(DEBUG,"Interrupt ID %d, state changed to %d\n\r",
-		  //interrupt_id,hart0_interrupt_matrix[interrupt_id].state);
+	log_debug("interrupt id %d, state changed to %d\n",
+		  interrupt_id,hart0_interrupt_matrix[interrupt_id].state);
 
-	//log_emit(TRACE,"INTERRUPT_Disable exited\n\r");
+	log_trace("INTERRUPT_Disable exited\n");
 
 	return SUCCESS;
 }
@@ -239,27 +241,27 @@ uint8_t INTERRUPT_Disable(uint32_t interrupt_id)
 
 uint8_t INTERRUPT_Threshold(uint32_t priority_value)
 {
-	//log_emit(TRACE,"INTERRUPT_Threshold entered\n\r");
+	log_trace("\nINTERRUPT_Threshold entered\n");
 
-	volatile uint32_t *interrupt_threshold_priority = NULL;
+	uint32_t *interrupt_threshold_priority = NULL;
 
 	interrupt_threshold_priority = (uint32_t *) (PLIC_BASE +
 						     PLIC_THRESHOLD_OFFSET);
 
 	*interrupt_threshold_priority = priority_value;
 
-	//log_emit(INFO,"PLIC Threshold set to %d\n\r", *interrupt_threshold_priority);
+	log_info("plic threshold set to %d\n", *interrupt_threshold_priority);
 
-	//log_emit(TRACE,"INTERRUPT_Threshold exited\n\r");
+	log_trace("INTERRUPT_Threshold exited\n");
 
 	return SUCCESS;
 }
 
-uint32_t SET_Interrupt_Priority(uint32_t priority_value, uint32_t int_id)
+void SET_Interrupt_Priority(uint32_t priority_value, uint32_t int_id)
 {
-	//log_emit(TRACE,"SET_Interrupt_Priority entered %x\n\r", priority_value);
+	log_trace("\n SET_Interrupt_Priority entered %x\n", priority_value);
 
-	volatile uint32_t * interrupt_priority_address;
+	uint32_t * interrupt_priority_address;
 
 	/*
 	   base address + priority offset + 4*interruptId
@@ -271,34 +273,15 @@ uint32_t SET_Interrupt_Priority(uint32_t priority_value, uint32_t int_id)
 						   (int_id <<
 						    PLIC_PRIORITY_SHIFT_PER_INT));
 
-	//log_emit(DEBUG,"Interrupt_priority_address = %x\n\r", interrupt_priority_address);
+	log_debug("interrupt_priority_address = %x\n", interrupt_priority_address);
 
-	//log_emit(DEBUG,"Current data at interrupt_priority_address = %x\n\r", *interrupt_priority_address);
+	log_debug("current data at interrupt_priority_address = %x\n", *interrupt_priority_address);
 
 	*interrupt_priority_address = priority_value;
 
-	//log_emit(DEBUG,"New data at interrupt_priority_address = %x\n\r", *interrupt_priority_address);
+	log_debug(" new data at interrupt_priority_address = %x\n", *interrupt_priority_address);
 
-	//log_emit(TRACE,"SET_Interrupt_Priority exited\n\r");
-
-	return SUCCESS;
-}
-
-static uint8_t Global_interrupt_enable()
-{
-	//log_emit(TRACE, "Reading MSTATUS and MIE");
-
-    asm volatile("li      t0, 8\t\n"
-             "csrrs   zero, mstatus, t0\t\n"
-            );
-    
-    //log_emit(TRACE, "Completed reading MSTATUS.");
-
-    asm volatile("li      t0, 0x800\t\n"
-             "csrrs   zero, mie, t0\t\n"
-            );
-
-    //log_emit(TRACE, "Completed reading MIE.");
+	log_trace("SET_Interrupt_Priority exited\n");
 
 	return SUCCESS;
 }
@@ -307,12 +290,12 @@ uint8_t PLIC_Init()
 {
 	uint32_t int_id = 0;
 
-	//log_emit(TRACE,"PLIC_Init entered.\n\r");
+	log_trace("\nPLIC_Init entered\n");
 
 	/*Assign service routine for external interrupt in machine mode*/
-	//mcause_interrupt_table[MACH_EXTERNAL_INTERRUPT] = PLIC_Handler;
+	mcause_interrupt_table[MACH_EXTERNAL_INTERRUPT] = PLIC_Handler;
 
-	//log_emit(DEBUG,"Assigned PLIC_Handler to trap id : %d.\n\r", MACH_EXTERNAL_INTERRUPT);
+	log_debug("Assigned mach_plic_handler to trap id : %d\n", MACH_EXTERNAL_INTERRUPT);
 	
 	hart0_interrupt_matrix[0].state = INACTIVE;
 	hart0_interrupt_matrix[0].id = 0;
@@ -326,7 +309,7 @@ uint8_t PLIC_Init()
 		hart0_interrupt_matrix[int_id].priority = PLIC_PRIORITY_3;
 		hart0_interrupt_matrix[int_id].count = 0;
 
-		//log_emit(DEBUG,"************************************************");
+		log_debug("\n************************************************");
 
 		/*Disable all interrupts at the beginning*/
 		INTERRUPT_Disable(int_id);
@@ -339,43 +322,38 @@ uint8_t PLIC_Init()
 		SET_Interrupt_Priority(PLIC_PRIORITY_3, int_id);
 
 
-		/*log_emit(DEBUG,"Interrupt ID = %x \n\r Reset to default values state = %x \
-			  \n\r Priority = %x\n\r Count = %x\n\r ",
+		log_debug("\ninterrupt id = %x \nreset to default values state = %x \
+			  \npriority = %x\ncount = %x\n \
+			  \n*************************************************",
 			  hart0_interrupt_matrix[int_id].id, \
 			  hart0_interrupt_matrix[int_id].state, \
 			  hart0_interrupt_matrix[int_id].priority, \
 			  hart0_interrupt_matrix[int_id].count);
-
-		log_emit(DEBUG, "*************************************************\n\r");*/
 	}
+  log_trace("PLIC_Init exited \n");
 
-	INTERRUPT_Threshold(PLIC_PRIORITY_1);
-	
-	Global_interrupt_enable();
-
-	//log_emit(TRACE,"PLIC_Init exited. \n\r");
-
-  	return SUCCESS;
+  return SUCCESS;
 }
-
 
 uint8_t IRQ_Connect(PLIC_Config_t *plic_config)
 {
-	//log_emit(TRACE,"IRQ_Connect entered. \n\r");
 
 	INTERRUPT_Enable(plic_config->interrupt_id);
+	log_trace("\nIRQ_Connect entered\n");
+	INTERRUPT_Threshold(PLIC_PRIORITY_2);
 
-	//log_emit(DEBUG, "Interrupt ID: %d, Interrupt Handler Address: %08x, ISR Table Address: %08x", plic_config->interrupt_id, plic_config->fptr, isr_table);
+	asm volatile("li      t0, 8\t\n"
+		     "csrrs   zero, mstatus, t0\t\n"
+		    );
+	asm volatile("li      t0, 0x800\t\n"
+		     "csrrs   zero, mie, t0\t\n"
+		    );
 
-    isr_table[plic_config->interrupt_id] = plic_config->fptr;
-
-	//log_emit(DEBUG, "ISR Address: %08x, ISR Table [%d]: %08x", &isr_table[plic_config->interrupt_id], plic_config->interrupt_id, isr_table[plic_config->interrupt_id]);
-
-    //log_emit(DEBUG, "Interrupt ID: %d, Interrupt Priority Value: %08x", plic_config->interrupt_id, plic_config->priority_value);
-	
+	isr_table[plic_config->interrupt_id] = plic_config->fptr;
+    
 	SET_Interrupt_Priority(plic_config->priority_value,plic_config->interrupt_id);
 
-	//log_emit(TRACE,"IRQ_Connect exited. \n\r");
+	log_trace("IRQ_Connect exited \n");
 
 	return SUCCESS;
 }

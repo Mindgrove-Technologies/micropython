@@ -30,11 +30,15 @@
 #include "log.h"
 #include "secure_iot.h"
 #include "encoding.h"
+#include "plic.h"
+
+extern plic_fptr_t isr_table[PLIC_MAX_INTERRUPT_SRC]; //isr_table maps interrupt IDs to function pointers.
+extern interrupt_data_t hart0_interrupt_matrix[PLIC_MAX_INTERRUPT_SRC];
 
 #define PLIC_CLAIM_OFFSET               0x200004UL
 mtrap_fptr_t mcause_trap_table[MAX_TRAP_VALUE];
 mtrap_fptr_t mcause_interrupt_table[MAX_INTERRUPT_VALUE];
-#define __riscv_xlen 64
+//#define __riscv_xlen 64
 extern void *interrupt_arg[];
 uint16_t interrupt_id;
 static const char* mcause_messages[] = {
@@ -128,19 +132,41 @@ uintptr_t Trap_Handler(uintptr_t cause, uintptr_t epc)
 	 */
 
 	shift_length = __riscv_xlen - 1;
-	code = cause & (1 << (shift_length)); //To check if it ws cused by an error or an exception
+	//code = cause & (1 << (shift_length)); //To check if it ws cused by an error or an exception
+	code = cause & (1ULL << shift_length); //changes made by Biancaa :)
+	//So if it was 1 -> It considered as 32bit integer and the functionality didnt work.
 	
 	 /* checking for type of trap */
 	if (code){
+		//----------------------------------------------------------------------------------------------
+    uint32_t mcause_code = cause & ~(1ULL << shift_length);
+
+    if (mcause_code == 11) {
+        uint32_t *claim_addr = (uint32_t *)(PLIC_BASE + PLIC_CLAIM_OFFSET);
+        uint32_t interrupt_id = *claim_addr;
+
+        if (isr_table[interrupt_id]) {
+            isr_table[interrupt_id](interrupt_arg[interrupt_id]);
+        }
+
+        *claim_addr = interrupt_id; // acknowledge
+		hart0_interrupt_matrix[interrupt_id].state = SERVICED;
+		hart0_interrupt_matrix[interrupt_id].count++;
+
+    }
+		//----------------------------------------------------------------------------------------------
+	else{	
 		ie_entry = (~code) & cause;
 
 		log_debug("\nInterrupt: mcause = %x, epc = %x\n", cause, epc);
         uint32_t *interrupt_claim_address = (uint32_t *)(PLIC_BASE +
 					       PLIC_CLAIM_OFFSET);
 		interrupt_id= *interrupt_claim_address;
+		//the interrupt id is stored in the address of the interrupt claim address.
 		mcause_interrupt_table[ie_entry]((uint64_t) interrupt_arg[interrupt_id]);
 	}
-	else if ((cause & 0xFFF) == 11) { // ecall from M-mode
+	}
+	/*else if ((cause & 0xFFF) == 11) { // ecall from M-mode
 		//mcause_reason(cause);
         // Optionally fetch arguments from a0, a1, etc.
         // Optionally perform service or set return value in a0
@@ -155,9 +181,11 @@ uintptr_t Trap_Handler(uintptr_t cause, uintptr_t epc)
 		__asm__ volatile ("mv x1, %0" : : "r"(val));
 		//__asm__ volatile ("ret");
 		//__asm__ volatile ("mret");
+		//return;
+		//all three corrupt the PC value
 
-	}
-	// else if ((cause & 0xFFF) == 1) { // ecall from M-mode
+	}*/
+	// else if ((cause & 0xFFF) == 1) { 
 
 	// 	mcause_reason(cause); //Prnts the cause of the exception that has occured
 	// 	log_error("\nProblem at address 0x%x\n", epc);
