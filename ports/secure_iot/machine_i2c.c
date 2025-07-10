@@ -111,7 +111,7 @@ static mp_obj_t machine_i2c_transmit_helper(machine_i2c_obj_t *self,size_t n_arg
     //or can try this:
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(data, &bufinfo, MP_BUFFER_READ);
-    uint8_t *data_ptr = bufinfo.buf;
+    data_ptr = bufinfo.buf;
     //Or I can read the data and create a local pointer if all fails.
     //uint32_t I2C_Transmit(uint32_t instance_number,uint8_t slave_address,uint8_t *data,uint8_t length,uint8_t mode)
     int s=I2C_Transmit(self->instance,addr,data_ptr,len,mode_bits);
@@ -145,9 +145,10 @@ static mp_obj_t machine_i2c_recieve_helper(machine_i2c_obj_t *self,size_t n_args
         //screw you Iam using the default one
     }
     
-    //mp_const_obj_t data=1;uint8_t *recv_buf;
-    uint8_t recv_buf[8];
-    recv_buf = malloc(8); // Don't forget to free later!
+    //mp_const_obj_t data=1;
+    uint8_t *recv_buf="hellohey";
+    //uint8_t recv_buf[8];
+    //recv_buf = malloc(8); // Don't forget to free later!
     uint8_t* data_ptr=recv_buf;
 
     //if(data){
@@ -164,9 +165,9 @@ static mp_obj_t machine_i2c_recieve_helper(machine_i2c_obj_t *self,size_t n_args
         printf("Byte %d: 0x%02X\n", i, recv_buf[i]);
     }
 
-    else {
-        mp_raise_ValueError(MP_ERROR_TEXT("invalid data"));
-    }
+    // else {
+    //     mp_raise_ValueError(MP_ERROR_TEXT("invalid data"));
+    // }
 
     return mp_const_none;
 }

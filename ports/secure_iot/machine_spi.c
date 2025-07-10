@@ -30,8 +30,7 @@ typedef struct
 }SPI_Config_t;*/
 SPI_Config_t* spi_array[SPI_NUM];
 //Life is hard ,code is messy and I am sad
-SPI_Config_t* spi_b;
-SPI_Config_t spi_b_inst0;
+//SPI_Config_t* spi_b;
 SPI_Config_t spi_b_inst0={
     .spi_number=0,
     .pol=0,
@@ -47,9 +46,8 @@ SPI_Config_t spi_b_inst0={
     .value=0,
     .bits=8,
 };
-spi_b =&spi_b_inst0;
-spi_array[0]=spi_b;
-SPI_Config_t spi_b_inst1;
+//spi_b =&spi_b_inst0;
+//spi_array[0]=spi_b;
 SPI_Config_t spi_b_inst1={
     .spi_number=1,
     .pol=0,
@@ -65,8 +63,8 @@ SPI_Config_t spi_b_inst1={
     .value=0,
     .bits=8,
 };
-spi_b =&spi_b_inst1;
-spi_array[1]=spi_b;
+//spi_b =&spi_b_inst1;
+//spi_array[1]=spi_b;
 SPI_Config_t spi_b_inst2={
     .spi_number=2,
     .pol=0,
@@ -82,8 +80,8 @@ SPI_Config_t spi_b_inst2={
     .value=0,
     .bits=8,
 };
-spi_b =&spi_b_inst2;
-spi_array[2]=spi_b;
+//spi_b =&spi_b_inst2;
+//spi_array[2]=spi_b;
 SPI_Config_t spi_b_inst3={
     .spi_number=3,
     .pol=0,
@@ -99,8 +97,8 @@ SPI_Config_t spi_b_inst3={
     .value=0,
     .bits=8,
 };
-spi_b =&spi_b_inst3;
-spi_array[3]=spi_b;
+//spi_b =&spi_b_inst3;
+//spi_array[3]=spi_b;
 SPI_Config_t spi_b_inst4={
     .spi_number=4,
     .pol=0,
@@ -116,8 +114,17 @@ SPI_Config_t spi_b_inst4={
     .value=0,
     .bits=8,
 };
-spi_b =&spi_b_inst4;
-spi_array[4]=spi_b;
+//spi_b =&spi_b_inst4;
+//spi_array[4]=spi_b;
+SPI_Config_t* spi_array[SPI_NUM] = {
+    &spi_b_inst0,
+    &spi_b_inst1,
+    &spi_b_inst2,
+    &spi_b_inst3,
+    &spi_b_inst4
+};
+//my life saver definition
+extern const mp_obj_type_t machine_spi_type;
 //----------------------------------------------------------------------------------------------------
 //there are 4 spis.
 //tbh a lot of stuff is redundant here and I might need to remove.
@@ -144,7 +151,7 @@ static machine_spi_obj_t *mp_obj_get_spi_obj(mp_obj_t spi_in) {
     // }
     if (mp_obj_is_small_int(spi_in)) {
         int spi_instance = mp_obj_get_int(spi_in);
-        if (spi_instance= 0 && spi_instance< SPI_NUM) {
+        if (spi_instance>= 0 && spi_instance< SPI_NUM) {
             return (machine_spi_obj_t *)&machine_spi_obj[spi_instance];
             //for ever mapped to that object ,till the end of time <3
         }
@@ -228,7 +235,7 @@ static mp_obj_t machine_spi_recieve_helper(machine_spi_obj_t *self,size_t n_args
 //print function for SPI
 static void machine_spi_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     machine_spi_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    mp_printf(print, "SPI(baudrate=%u, polarity=%u, phase=%u)", self->baudrate, self->polarity, self->phase);
+    mp_printf(print, "SPI(baudrate=%u, polarity=%u, phase=%u)", self->bit_rate, self->polarity, self->phase);
     //have to ensure all the values are properly added before setup
 }
 
@@ -245,6 +252,7 @@ static void machine_spi_print(const mp_print_t *print, mp_obj_t self_in, mp_prin
 static void machine_spi_obj_init_helper(mp_obj_base_t *self_in, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     //separating the kw and positional arguments needs prior knowledge of the argument distribution
     machine_spi_obj_t *self = (machine_spi_obj_t *)self_in;
+    //actually wait I am pointing the specific value only before.
     //setting of default values
     // for(int i=0;i<SPI_NUM;i++){
     //     SPI_Config_t* spi_b;
@@ -298,6 +306,7 @@ static void machine_spi_obj_init_helper(mp_obj_base_t *self_in, size_t n_args, c
         self->bit_rate=bit_rate;
         self->prescalar =prescale_from_bit_rate(bit_rate);
         spi_array[spi_id]->bit_rate=bit_rate;
+        //spi_b->bit_rate=0;
         spi_array[spi_id]->prescale=prescale_from_bit_rate(bit_rate);
         set_value=1;
     }

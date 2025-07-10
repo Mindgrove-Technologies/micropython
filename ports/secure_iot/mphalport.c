@@ -11,6 +11,7 @@
 #include "uart.h"
 #include "py/mpconfig.h"
 #include "shared/runtime/pyexec.h"
+#include "RTC_driver.h"
 
 void mp_hal_delay_ms(mp_uint_t ms) {
     // stub implementation, replace with your delay code
@@ -84,16 +85,26 @@ mp_uint_t mp_hal_ticks_us(void) {
     return (mp_uint_t)value;
 }
 
+mp_uint_t mp_hal_time_ns(void){
+    mp_uint_t value=mp_hal_ticks_us();
+    return (value*1000);
+}
 // static inline void mp_hal_set_interrupt_char(char c){
 //     //no action
 // }
 //--------------------------------------------------------
 //Newly added mphal functions
-// static mp_obj_t mp_time_time_get(void) {
+static mp_obj_t mp_time_time_get(void) {
 
-//     return mp_obj_new_int(mp_hal_ticks_ms(void)/ 1000);
-// }
+    return mp_obj_new_int((mp_hal_ticks_ms())/ 1000);
+}
 
 // uint64_t mp_hal_time_ns(void) {
 //     return k_ticks_to_ns_near64(k_uptime_ticks());
 // }
+
+uint64_t mp_hal_time_ns_rtc(uint8_t i2c_number){
+    uint32_t second=DS3231_getEpoch_calc(i2c_number);
+    uint64_t nanos=second * 1000*1000*1000;
+    return nanos;
+}

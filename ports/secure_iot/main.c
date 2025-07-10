@@ -85,7 +85,7 @@ int main(void) {
     *baud=16;
     short* value=0x11304;
     *value=65;
-    //millis_init(); //for turning on the clock for reference
+    millis_init(); //for turning on the clock for reference
     /*
         // Set MSIP register to trigger a software interrupt
     volatile uint64_t* umsip     = (volatile uint64_t*)0x02000000;
