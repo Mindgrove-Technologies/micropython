@@ -146,3 +146,7 @@ Before compiling a given port, use
     $ make submodules
 
 to ensure that all required submodules are initialised.
+
+Mindgrove documentation: https://beneficial-death-54e.notion.site/MicroPython-1f9dbd81469780e4927ee078bed18b68?source=copy_link
+
+and features available in the present release 
