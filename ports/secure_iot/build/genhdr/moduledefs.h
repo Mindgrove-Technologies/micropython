@@ -1,4 +1,5 @@
 // Contains the list of modules to be finally added after linking / The modules that will be visible from python.
+//Ohhh God
 #include "py/obj.h"
 #include "module.h"
 #include "ulab.h"
@@ -18,6 +19,7 @@
 
 #include "utils/utils.h"
 #include "modmachine.h"
+//#include "modtime.h"
 //#include "py/modmath.h" --> It doesnt exist
 
 extern const struct _mp_obj_module_t mp_module_array;
@@ -117,6 +119,10 @@ extern const struct _mp_obj_module_t machine_module;
 #undef MODULE_DEF_MACHINE
 #define MODULE_DEF_MACHINE{ MP_ROM_QSTR(MP_QSTR_machine), MP_ROM_PTR(&machine_module) },
 
+extern const struct _mp_obj_module_t mp_module_time;
+#undef MODULE_DEF_TIME
+#define MODULE_DEF_TIME{ MP_ROM_QSTR(MP_QSTR_time), MP_ROM_PTR(&mp_module_time) },
+
 #define MICROPY_REGISTERED_MODULES \
     MODULE_DEF_BUILTINS \
     MODULE_DEF_GC \
@@ -144,6 +150,7 @@ extern const struct _mp_obj_module_t machine_module;
     MODULE_DEF_SCIPY_SIGNAL \
     MODULE_DEF_SCIPY_SPECIAL \
     MODULE_DEF_MACHINE \
+    MODULE_DEF_TIME \
 // MICROPY_REGISTERED_EXTENSIBLE_MODULES
 
 extern void mp_module_sys_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest);
