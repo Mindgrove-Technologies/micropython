@@ -86,7 +86,7 @@ static mp_obj_t machine_i2c_transmit_helper(machine_i2c_obj_t *self,size_t n_arg
         { MP_QSTR_mode, MP_ARG_INT, {.u_int = 0} }, //default mode 0
         { MP_QSTR_len, MP_ARG_INT ,{.u_int = 8}}, //default 8
         { MP_QSTR_addr, MP_ARG_KW_ONLY|MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0} }, // Accepts decimal or hex
-        { MP_QSTR_data, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        { MP_QSTR_data, MP_ARG_REQUIRED|MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
     };
     mp_arg_val_t args_parsed[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args_parsed);
@@ -113,19 +113,20 @@ static mp_obj_t machine_i2c_transmit_helper(machine_i2c_obj_t *self,size_t n_arg
 }
 
 static mp_obj_t machine_i2c_recieve_helper(machine_i2c_obj_t *self,size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args){//const mp_obj_t *all_args) {
-    enum { ARG_mode, ARG_len,ARG_addr,ARG_data };
+    enum { ARG_mode, ARG_len,ARG_addr};
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_mode, MP_ARG_INT, {.u_int = 0} }, //default mode 0
         { MP_QSTR_len, MP_ARG_INT ,{.u_int = 8}}, //default 8
         { MP_QSTR_addr, MP_ARG_KW_ONLY|MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0} }, // Accepts decimal or hex
-        { MP_QSTR_data, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        //{ MP_QSTR_data, MP_ARG_REQUIRED|MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        //fatal flaw
     };
     mp_arg_val_t args_parsed[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args_parsed);
     int mode = args_parsed[ARG_mode].u_int;
     uint8_t len = args_parsed[ARG_len].u_int;
     uint8_t addr=args_parsed[ARG_addr].u_int;
-    mp_const_obj_t data =args_parsed[ARG_data].u_obj;
+    mp_const_obj_t data=1;
     // Set mode (replace with your hardware function)
     uint8_t mode_bits;
     if (mode == 0) { // Stop
@@ -138,10 +139,16 @@ static mp_obj_t machine_i2c_recieve_helper(machine_i2c_obj_t *self,size_t n_args
         mode_bits=START_BIT|STOP_BIT;
         //screw you Iam using the default one
     }
+
     if(data){
+        //if the mp_object is created
         uint8_t data_ptr=MP_OBJ_TO_PTR(data);
         //uint32_t I2C_Transmit(uint32_t instance_number,uint8_t slave_address,uint8_t *data,uint8_t length,uint8_t mode)
         int s=I2C_Recieve(self->instance,addr,data_ptr,len,mode_bits);
+        for(int i=0;i<len;i++){
+            printf("%c\t",data_ptr[i]);
+            //if len not given use default value
+        }
     }
     else {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid data"));
