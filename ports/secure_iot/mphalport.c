@@ -80,8 +80,10 @@ mp_uint_t mp_hal_ticks_ms(void) {
 
 mp_uint_t mp_hal_ticks_us(void) {
     //return esp_timer_get_time();
-    uint32_t value;
-    value=micros();
+    uint64_t value;
+    //value=micros();
+    value=millis();
+    value =value*1000;
     return (mp_uint_t)value;
 }
 
@@ -94,7 +96,7 @@ mp_uint_t mp_hal_time_ns(void){
 // }
 //--------------------------------------------------------
 //Newly added mphal functions
-static mp_obj_t mp_time_time_get(void) {
+mp_obj_t mp_time_time_get(void) {
 
     return mp_obj_new_int((mp_hal_ticks_ms())/ 1000);
 }

@@ -100,12 +100,12 @@ static mp_obj_t time_mktime(mp_obj_t tuple) {
 MP_DEFINE_CONST_FUN_OBJ_1(mp_time_mktime_obj, time_mktime);
 
 #endif // MICROPY_PY_TIME_GMTIME_LOCALTIME_MKTIME
-
+#define  MICROPY_PY_TIME_TIME_TIME_NS 1
 #if MICROPY_PY_TIME_TIME_TIME_NS
 
 // time()
 // Return the number of seconds since the Epoch.
-static mp_obj_t time_time(uint8_t i2c_number) {
+static uint32_t time_time(uint8_t i2c_number) {
     //return mp_time_time_get();
     return DS3231_getEpoch_calc(i2c_number);
     //In Python, time.time() returns the number of seconds since the Unix Epoch (typically Jan 1, 1970, UTC) as a floating-point number.
