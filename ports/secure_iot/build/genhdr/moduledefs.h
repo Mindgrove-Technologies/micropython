@@ -21,6 +21,7 @@
 #include "modmachine.h"
 //#include "modtime.h"
 //#include "py/modmath.h" --> It doesnt exist
+//random module also doesnot have a .h file
 
 extern const struct _mp_obj_module_t mp_module_array;
 #undef MODULE_DEF_ARRAY
@@ -123,6 +124,11 @@ extern const struct _mp_obj_module_t mp_module_time;
 #undef MODULE_DEF_TIME
 #define MODULE_DEF_TIME{ MP_ROM_QSTR(MP_QSTR_time), MP_ROM_PTR(&mp_module_time) },
 
+//for the random module defined by me:
+extern const struct _mp_obj_module_t random_user_cmodule;
+#undef MODULE_DEF_RANDOM
+#define MODULE_DEF_RANDOM{MP_ROM_QSTR(MP_QSTR_crandom),MP_ROM_PTR(&random_user_cmodule)}
+
 #define MICROPY_REGISTERED_MODULES \
     MODULE_DEF_BUILTINS \
     MODULE_DEF_GC \
@@ -151,6 +157,7 @@ extern const struct _mp_obj_module_t mp_module_time;
     MODULE_DEF_SCIPY_SPECIAL \
     MODULE_DEF_MACHINE \
     MODULE_DEF_TIME \
+    MODULE_DEF_RANDOM \
 // MICROPY_REGISTERED_EXTENSIBLE_MODULES
 
 extern void mp_module_sys_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest);
