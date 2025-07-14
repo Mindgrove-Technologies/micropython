@@ -64,6 +64,7 @@ SRC_C = \
 	machine_pin_new.c \
 	machine_i2c.c \
 	machine_spi.c \
+	machine_pwm.c \
 	modmachine.c \
 	modtime.c \
 	random_module.c \
@@ -84,6 +85,7 @@ SRC_C = \
 	gpio_driver.c \
 	gptimer_driver.c \
 	spi_driver.c \
+	pwm_driver.c \
 	shared/readline/readline.c \
 	shared/runtime/gchelper_generic.c \
 	shared/runtime/pyexec.c \
@@ -168,6 +170,7 @@ SRC_QSTR += \
 	machine_pin_new.c \
 	machine_i2c.c \
 	machine_spi.c \
+	machine_pwm.c \
 	modmachine.c \
 	modtime.c \
 	random_module.c \
@@ -191,6 +194,7 @@ SRC_QSTR += \
 	module.c \
 	wdtimer_driver.c \
 	gpio_driver.c \
+	pwm_driver.c \
 	scipy/integrate/integrate.c \
 	scipy/linalg/linalg.c \
 	scipy/optimize/optimize.c \

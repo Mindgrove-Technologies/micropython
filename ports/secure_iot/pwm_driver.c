@@ -34,8 +34,6 @@
 
 // volatile pwm_struct *pwm_instance[PWM_MAX_COUNT];
 volatile PWM_Type *pwm_instance[PWM_MAX_COUNT];
-PWM_Config_t pwm_config_b;
-PWM_Config_t *PWM_Config_1 =&pwm_config_b;
 
 void PWM_Init(PWM_Config_t *config, int count, ...)
 {
@@ -277,6 +275,8 @@ void PWM_Show_Frequency(PWM_Config_t *config)
 	int frequency;
 	frequency =  CLOCK_FREQUENCY_BASE/((config->period*(config->prescalar_value+1)));
 	log_debug("\n PWM %d The expected Frequency %d", config->pwm_number, frequency);
+	printf("\n PWM %d The expected Frequency %d", config->pwm_number, frequency);
+	//So there is no definite field for frequency
 }
 
 void PWM_Show_Values(PWM_Config_t *config)
@@ -288,6 +288,8 @@ void PWM_Show_Values(PWM_Config_t *config)
 	log_info("\n PWM %d Duty Register %x" ,config->pwm_number, pwm_instance[config->pwm_number]->DUTY_CYCLE);
 	log_debug("\n PWM %d DeadBand Delay Register %x" ,config->pwm_number, pwm_instance[config->pwm_number]->DEADBAND_DELAY);
 }
+
+//This is not there in the new production version
 
 void PWM_Isr_Handler0(){ 
 	
@@ -378,5 +380,5 @@ void PWM_Isr_Handler5(){
 
 	log_debug("\n PWM 5 Interrupt"); 
 }
-
+//--------------------------------------------------------------------------
 
