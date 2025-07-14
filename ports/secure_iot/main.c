@@ -14,7 +14,6 @@
 //#include <stdio.h>
 
 #include"uart.h"
-#include "i2c.h"
 #include"io.h"
 #include"secure_iot.h"
 #include"gptimer.h"
@@ -86,32 +85,7 @@ int main(void) {
     *baud=16;
     short* value=0x11304;
     *value=65;
-    //millis_init(); //for turning on the clock for reference
-    /*
-        // Set MSIP register to trigger a software interrupt
-    volatile uint64_t* umsip     = (volatile uint64_t*)0x02000000;
-    volatile uint64_t* umtime    = (volatile uint64_t*)0x0200BFF8;
-    volatile uint64_t* umtimecmp = (volatile uint64_t*)0x02004000;
-    *umsip = 0x01;
-	//printf("msip: %p, mtime: %p, mtimecmp: %p\n", msip, mtime, mtimecmp);
-	//uint64_t val;
-    // Try reading
-    // val = *msip;
-    // printf("msip value: %llx\n", val);
-    // val = *mtime;
-    // printf("mtime value: %llx\n", val);
-    // val = *mtimecmp;
-    // printf("mtimecmp value: %llx\n", val);
-
-    // Disable specific interrupts (for demonstration; adjust as needed)
-    asm volatile("li      t0, 0xc0\t\n\r"    // Load immediate value
-                 "csrrs   zero, mie, t0\t\n\r"); // Set bits in mie register
-    // Enable global interrupts
-    asm volatile("li      t0, 8\t\n\r"      // Load immediate value
-                 "csrrs   zero, mstatus, t0\t\n\r"); // Set bits in mstatus register
-
-    //last_count = * mtime; //changes made
-    *umtimecmp = *umtime + 1500000;*/
+    millis_init(); //for turning on the clock for reference
     printf("hello");
     const qstr_pool_t *pool = MP_STATE_VM(last_pool);
     printf("QSTR POOL PTR = %p\n", pool);
@@ -144,7 +118,7 @@ int main(void) {
 
 
     mp_stack_ctrl_init();
-    mp_stack_set_limit(131072);//4kb stack limit
+    mp_stack_set_limit(131072);
     //mp_stack_set_limit(40000 * (BYTES_PER_WORD / 4));
     gc_init(heap, heap + sizeof(heap));
     qstr_init(); //No issues till here
@@ -196,14 +170,15 @@ int main(void) {
         }
     pyexec_friendly_repl(); //comment out if repl is not needed
     //gc.threshold(gc.mem_free()) // 4 + gc.mem_alloc())
-    char str[10] = "MINDGROVE";
-    int len = my_strlen(str);
-    char new[100];/*Declared a string variable to receive */
-    //UART_Write((UART_Config_t*)UART_Config_1,str,len);
-    UART_Write((UART_Config_t *)UART_Config_1, (uint8_t *)str, len);
-    UART_Write_Wait((UART_Config_t*)UART_Config_1);//Wait till the uart transmission.
-    UART_Read_String((UART_Config_t*)UART_Config_1,new);
-    printf("\nstring1 :%s\n", new);
+    // char str[10] = "MINDGROVE";
+    // int len = my_strlen(str);
+    // char new[100];/*Declared a string variable to receive */
+    // //UART_Write((UART_Config_t*)UART_Config_1,str,len);
+    // UART_Write((UART_Config_t *)UART_Config_1, (uint8_t *)str, len);
+    // UART_Write_Wait((UART_Config_t*)UART_Config_1);//Wait till the uart transmission.
+    // UART_Read_String((UART_Config_t*)UART_Config_1,new);
+    // printf("\nstring1 :%s\n", new);
+    //THis uart will not be executed after the python friendly repl loop is running infinitely
     
     //This will provoke a GC when more than 25% of the currently free heap becomes occupied.
     if (lex == NULL) {
