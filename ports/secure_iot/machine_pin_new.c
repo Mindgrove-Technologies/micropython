@@ -182,40 +182,6 @@ static mp_obj_t machine_pin_interrupt_helper(machine_pin_obj_t *self,size_t n_ar
     };
     mp_arg_val_t args_parsed[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args_parsed);
-    //--------------------------------------------------------------------------------------------------------
-    //     printf("Positional args (%d):\n", (int)n_args);
-    // for (size_t i = 0; i < n_args; ++i) {
-    //     mp_obj_print_helper(&mp_plat_print, args_parsed[i], PRINT_REPR);
-    //     printf("\n");
-    // }
-    /*
-    for (size_t i = 0; i < MP_ARRAY_SIZE(allowed_args); ++i) {
-    if (allowed_args[i].flags & MP_ARG_INT) {
-        printf("arg[%d] = %d\n", (int)i, args_parsed[i].u_int);
-    } else if (allowed_args[i].flags & MP_ARG_OBJ) {
-        printf("arg[%d] = ", (int)i);
-        mp_obj_print_helper(&mp_plat_print, args_parsed[i].u_obj, PRINT_REPR);
-        printf("\n");
-    }
-    }
-
-
-    if (kw_args != NULL && kw_args->used > 0) {
-        printf("Keyword args:\n");
-    for (size_t i = 0; i < kw_args->alloc; ++i) {
-        if (mp_map_slot_is_filled(kw_args, i)) {
-            mp_map_elem_t *elem = &kw_args->table[i];
-            mp_obj_print_helper(&mp_plat_print, elem->key, PRINT_REPR);
-            printf(" : ");
-            mp_obj_print_helper(&mp_plat_print, elem->value, PRINT_REPR);
-            printf("\n");
-        }
-    }
-}*/
-//-----------------------------------------------------------------------
-    //mp_map_t kw_args;
-    //mp_map_init_fixed_table(&kw_args,n_kw,all_args+n_args);
-    //mp_arg_parse_all(n_args, all_args, &kw_args,MP_ARRAY_SIZE(allowed_args), allowed_args, args_parsed);
     int trigger = args_parsed[ARG_trigger].u_int;
     printf("trigger ,%d",trigger);
     //it is taking the value (Checked)

@@ -11,7 +11,7 @@
 
 
 #define NUM_I2C 2
-#define clk_freq 100000
+#define clk_freq 1000
 extern const mp_obj_type_t machine_i2c_type;
 
 typedef struct _machine_i2c_obj_t {
@@ -61,6 +61,7 @@ static mp_obj_t machine_i2c_obj_init_helper(machine_i2c_obj_t *self, size_t n_ar
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
     int num = args[ARG_num].u_int;
+    printf("%d is the num passed",num);
     I2C_Init(num,clk_freq);
 
     return mp_const_none;
@@ -134,10 +135,10 @@ static mp_obj_t machine_i2c_recieve_helper(machine_i2c_obj_t *self,size_t n_args
     uint8_t addr=args_parsed[ARG_addr].u_int;
     // Set mode (replace with your hardware function)
     uint8_t mode_bits;
-    printf("Data recieved from python");
-    printf("mode : %d",mode);
-    printf("len : %d",len);
-    printf("addr:%x",addr);
+    // printf("Data recieved from python");
+    // printf("mode : %d",mode);
+    // printf("len : %d",len);
+    // printf("addr:%x",addr);
 
     if (mode == 0) { // Stop
         mode_bits=START_BIT|STOP_BIT;
@@ -147,7 +148,7 @@ static mp_obj_t machine_i2c_recieve_helper(machine_i2c_obj_t *self,size_t n_args
     } else {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid mode"));
         mode_bits=START_BIT|STOP_BIT;
-        //screw you Iam using the default one
+        //default
     }
     
     //mp_const_obj_t data=1;
@@ -161,15 +162,33 @@ static mp_obj_t machine_i2c_recieve_helper(machine_i2c_obj_t *self,size_t n_args
         //uint8_t *data_ptr=MP_OBJ_TO_PTR(data);
         //uint32_t I2C_Transmit(uint32_t instance_number,uint8_t slave_address,uint8_t *data,uint8_t length,uint8_t mode)
         printf("CalLing I2C recieve");
-        uint8_t *data=0x00;
-        uint8_t *seconds;
-        printf("Instance %d",self->instance);
+        //uint8_t *data=0x00;
+        //uint8_t *seconds;
+        //printf("Instance %d",self->instance);
+
+        I2C_Init(0,1000);
+        uint8_t data = 0x00,second_data;
+        uint8_t i2c_instance = 0x00;
+        uint8_t slave_address = 0x68;
+        I2C_Transmit(self->instance,addr,&data,1,mode_bits);//Setting reg address to read seconds from RTC
+        I2C_Recieve(self->instance,addr,&second_data,1,mode_bits);//Reading from given register address from RTC
+        printf("Data recieved: %d\n\r",second_data); 
+       // while(1)
+        //{
+            // I2C_Transmit(i2c_instance,slave_address,&data,1,START_BIT|STOP_BIT);//Setting reg address to read seconds from RTC
+            // I2C_Recieve(i2c_instance,slave_address,&seconds,1,START_BIT|STOP_BIT);//Reading from given register address from RTC
+            // printf("Seconds: %d\n\r",seconds); 
+        //}
+        /*
           while(1)
     {   //checking RTC
+        //I2C_Transmit(0,0x68,data,1,START_BIT|STOP_BIT);//Setting reg address to read seconds from RTC
+        //I2C_Recieve(self->instance,addr,seconds,1,mode_bits);//Reading from given register address from RTC
         I2C_Transmit(0,0x68,data,1,START_BIT|STOP_BIT);//Setting reg address to read seconds from RTC
-        I2C_Recieve(self->instance,addr,seconds,len,mode_bits);//Reading from given register address from RTC
+        I2C_Recieve(0,0x68,seconds,1,START_BIT|STOP_BIT);//Reading from given register address from RTC
         printf("Seconds: %d\n\r",seconds); 
     }
+    */
         //int s=I2C_Recieve(self->instance,addr,data_ptr,len,mode_bits);
     //     for(int i=0;i<len;i++){
     //         printf("%c\t",data_ptr[i]);

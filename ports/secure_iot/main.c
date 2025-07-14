@@ -14,6 +14,7 @@
 //#include <stdio.h>
 
 #include"uart.h"
+#include "i2c.h"
 #include"io.h"
 #include"secure_iot.h"
 #include"gptimer.h"
@@ -85,7 +86,7 @@ int main(void) {
     *baud=16;
     short* value=0x11304;
     *value=65;
-    millis_init(); //for turning on the clock for reference
+    //millis_init(); //for turning on the clock for reference
     /*
         // Set MSIP register to trigger a software interrupt
     volatile uint64_t* umsip     = (volatile uint64_t*)0x02000000;
@@ -172,7 +173,7 @@ int main(void) {
     //mp_obj_list_init(mp_sys_path, 0);
     //mp_obj_list_init(mp_sys_argv, 0);
 
-    const char *src = "print('Hello from fing micro python !')";
+    const char *src = "print('Hello from micro python !')";
     mp_lexer_t *lex = mp_lexer_new_from_str_len(MP_QSTR__lt_stdin_gt_, src, strlen(src), 0);
     mp_parse_tree_t parse_tree = mp_parse(lex, MP_PARSE_FILE_INPUT);
    // mp_obj_t module_fun = mp_compile(&parse_tree, lex->source_name, MP_EMIT_OPT_NONE, true);
