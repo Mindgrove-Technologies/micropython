@@ -187,6 +187,8 @@ static mp_obj_t time_ticks_diff(mp_obj_t end_in, mp_obj_t start_in) {
         - MICROPY_PY_TIME_TICKS_PERIOD / 2;
     return MP_OBJ_NEW_SMALL_INT(diff);
     //[-MICROPY_PY_TIME_TICKS_PERIOD // 2, MICROPY_PY_TIME_TICKS_PERIOD // 2 - 1] will be the range of the returned value
+    //due to wrap around of time ,so for a positive result ,
+    //This means the result is always in the range [0, TICKS_PERIOD-1].
 }
 
 MP_DEFINE_CONST_FUN_OBJ_2(mp_time_ticks_diff_obj, time_ticks_diff);
