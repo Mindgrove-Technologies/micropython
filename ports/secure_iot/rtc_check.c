@@ -1,8 +1,9 @@
+//A simple example code for checking the working of RTC module
 #include "i2c.h"
 #include <stdint.h>
 void checking()
 {
-    printf("Starting Testing !!!");
+    printf("Starting test for RTC module seconds);
   I2C_Init(0,100000);
   uint8_t data = 0x00,seconds;
   uint8_t i2c_instance = 0x00;
