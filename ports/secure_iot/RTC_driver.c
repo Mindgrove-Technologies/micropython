@@ -380,6 +380,7 @@ void DS3231_setDateTime(uint8_t i2c_number,char* date, char* time)
 //Changes made by Biancaa.R
 
 // Returns seconds since 1970-01-01 00:00:00 UTC
+/*
 uint32_t DS3231_getEpoch(uint8_t i2c_number) {
     uint16_t year = DS3231_getYear(i2c_number);
     uint8_t month = DS3231_getMonth(i2c_number); // 1-12
@@ -406,7 +407,7 @@ uint32_t DS3231_getEpoch(uint8_t i2c_number) {
     return epoch;
 	//This seems like the most confusing thing in the entire world
 	//Screw this I am writing my own logic -> Not this georgian one.
-}
+}*/
 
 //calc epoc seconds:
 static const int days_in_month[12] = {
@@ -423,7 +424,6 @@ int days_since_epoch(int year, int month, int day) {
     for (int y =1970; y <year; y++) {
         days += is_leap_year(y) ? 366 : 365;
     } //till the previous complete year
-	//I am going crazy
     // Add days for each month in the current year
     for (int m = 1; m < month; m++) {
 		//donot add for this half done hanging month
