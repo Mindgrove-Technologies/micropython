@@ -110,11 +110,12 @@ static uint32_t time_time(uint8_t i2c_number) {
     return DS3231_getEpoch_calc(i2c_number);
     //In Python, time.time() returns the number of seconds since the Unix Epoch (typically Jan 1, 1970, UTC) as a floating-point number.
     //In MicroPython, it often returns an integer number of seconds depending on configuration.
+    // Returns the current time as the number of seconds since the Epoch. -> NOTE: I2C number is instance number not address
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mp_time_time_obj, time_time);
 
 // time_ns()
-// Returns the number of nanoseconds since the Epoch, as an integer.
+// Returns the number of nanoseconds
 //doubt
 static mp_obj_t time_time_ns(void) {
     return mp_obj_new_int_from_ull(mp_hal_time_ns());
@@ -129,6 +130,7 @@ static mp_obj_t time_sleep(mp_obj_t seconds_o) {
     #if MICROPY_PY_BUILTINS_FLOAT
     mp_hal_delay_ms((mp_uint_t)(1000 * mp_obj_get_float(seconds_o)));
     //turns seconds to milliseconds before passing the input
+    //float for greater precison if supported ,or else int
     #else
     mp_hal_delay_ms(1000 * mp_obj_get_int(seconds_o));
     #endif
@@ -139,6 +141,7 @@ MP_DEFINE_CONST_FUN_OBJ_1(mp_time_sleep_obj, time_sleep);
 
 static mp_obj_t time_sleep_ms(mp_obj_t arg) {
     mp_int_t ms = mp_obj_get_int(arg);
+    //converting the mp object to mp int
     if (ms >= 0) {
         mp_hal_delay_ms(ms);
     }
@@ -148,6 +151,7 @@ MP_DEFINE_CONST_FUN_OBJ_1(mp_time_sleep_ms_obj, time_sleep_ms);
 
 static mp_obj_t time_sleep_us(mp_obj_t arg) {
     mp_int_t us = mp_obj_get_int(arg);
+    //converting the mp object to mp int
     if (us > 0) {
         mp_hal_delay_us(us);
     }
@@ -157,11 +161,13 @@ MP_DEFINE_CONST_FUN_OBJ_1(mp_time_sleep_us_obj, time_sleep_us);
 
 static mp_obj_t time_ticks_ms(void) {
     return MP_OBJ_NEW_SMALL_INT(mp_hal_ticks_ms() & (MICROPY_PY_TIME_TICKS_PERIOD - 1));
+    //applied to ensure that the tick counter returned by time.ticks_ms() always wraps around at a fixed, power-of-two value called TICKS_PERIOD. 
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mp_time_ticks_ms_obj, time_ticks_ms);
 
 static mp_obj_t time_ticks_us(void) {
     return MP_OBJ_NEW_SMALL_INT(mp_hal_ticks_us() & (MICROPY_PY_TIME_TICKS_PERIOD - 1));
+    //applied to ensure that the tick counter returned by time.ticks_ms() always wraps around at a fixed, power-of-two value called TICKS_PERIOD. 
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mp_time_ticks_us_obj, time_ticks_us);
 
@@ -180,6 +186,7 @@ static mp_obj_t time_ticks_diff(mp_obj_t end_in, mp_obj_t start_in) {
     mp_int_t diff = ((end - start + MICROPY_PY_TIME_TICKS_PERIOD / 2) & (MICROPY_PY_TIME_TICKS_PERIOD - 1))
         - MICROPY_PY_TIME_TICKS_PERIOD / 2;
     return MP_OBJ_NEW_SMALL_INT(diff);
+    //[-MICROPY_PY_TIME_TICKS_PERIOD // 2, MICROPY_PY_TIME_TICKS_PERIOD // 2 - 1] will be the range of the returned value
 }
 
 MP_DEFINE_CONST_FUN_OBJ_2(mp_time_ticks_diff_obj, time_ticks_diff);
