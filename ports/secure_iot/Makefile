@@ -71,6 +71,7 @@ SRC_C = \
 	uart_driver.c \
 	i2c_driver.c \
 	RTC_driver.c \
+	pinmux_driver.c \
 	uart_core.c \
 	util.c \
 	plic_driver.c \
@@ -179,6 +180,7 @@ SRC_QSTR += \
 	RTC_driver.c \
 	spi_driver.c \
 	gptimer_driver.c \
+	pinmux_driver.c \
 	uart_core.c \
 	util.c \
 	plic_driver.c \

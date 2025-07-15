@@ -31,6 +31,7 @@
 #include "log.h"
 #include "gpio.h"
 #include "secure_iot.h"
+#include "pinmux.h"
 
 // volatile pwm_struct *pwm_instance[PWM_MAX_COUNT];
 volatile PWM_Type *pwm_instance[PWM_MAX_COUNT];

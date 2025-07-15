@@ -292,11 +292,6 @@ typedef struct _machine_pwm_obj_t
 static bool pwm_inited = false;
 extern const mp_obj_type_t machine_pwm_type;
 
-// Forward declarations
-static void machine_pwm_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind);
-static mp_obj_t machine_pwm_obj_init_helper(machine_pwm_obj_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args);
-static mp_obj_t machine_pwm_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args);
-
 
 //uint32_t freq =((clk_freq)/((prescalar-1)*period));
 //uint32_t freq= 1225;
@@ -493,7 +488,7 @@ static void mp_machine_pwm_deinit(machine_pwm_obj_t *self)
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(machine_pwm_deinit_obj, mp_machine_pwm_deinit);
 
-static mp_obj_t mp_machine_pwm_freq_get(machine_pwm_obj_t *self)
+static void mp_machine_pwm_freq_get(machine_pwm_obj_t *self)
 {
     //return MP_OBJ_NEW_SMALL_INT(pwm_get_freq(0));
     //from the object we can obtain the pwm number
@@ -574,8 +569,8 @@ MP_DEFINE_CONST_OBJ_TYPE(
     machine_pwm_type,
     MP_QSTR_PWM,
     MP_TYPE_FLAG_NONE,
-    make_new, machine_pwm_make_new,
-    print, machine_pwm_print,
+    make_new, mp_machine_pwm_make_new,
+    print, mp_machine_pwm_print,
     //protocol, &machine_spi_p,
     locals_dict, &machine_pwm_locals_dict
     );
