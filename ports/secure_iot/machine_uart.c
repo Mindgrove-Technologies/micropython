@@ -17,10 +17,15 @@
 #include "shared/runtime/mpirq.h"
 #include "extmod/modmachine.h"
 #include <stdint.h>
-// #include "secure_iot.h"
-// #include "uart_core.h"
+#include "secure_iot.h"
+#include "uart_core.h"
 // #include "modmachine.h"
 
+#ifdef MP_DEFINE_CONST_OBJ_TYPE
+#define MICRO_PY_MACRO_OK 1
+#else
+#error "MP_DEFINE_CONST_OBJ_TYPE is not defined!"
+#endif
 
 
 
@@ -28,7 +33,7 @@
 #define timeout_char 60
 #define STATIC static
 #define UART_NUM 5
-extern const mp_obj_type_t machine_uart_type;
+extern const mp_obj_type_t machine_uart_new_type;
 extern volatile UART_Type *uart_instance[MAX_UART_COUNT] ;
 typedef struct _machine_uart_obj_t {
     mp_obj_base_t base;
@@ -130,22 +135,16 @@ uint8_t UART_Tx_empty(UART_Config_t *uart_config);
 static const char *_parity_name[] = {"NO_PARITY" ,"ODD_PARITY" ,"EVEN_PARITY"}; // a lookup tabel for reference -> Where data is passed on to print
 //----------------------------------------------------------------------------------------------------------
 //All the functions are defined separately
-static void mp_machine_uart_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind);
-//static mp_obj_t mp_machine_uart_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args);
-static mp_obj_t machine_uart_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args); 
-static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size);
-static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf_in) ;
-//static mp_uint_t mp_machine_uart_ioctl(mp_obj_t self_in, mp_uint_t request, uintptr_t arg, int *errcode) ;
-static mp_int_t mp_machine_uart_any(machine_uart_obj_t *self);
-static void mp_machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args);
-uint8_t UART_Deinit(machine_uart_obj_t *self);
+// static void mp_machine_uart_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind);
+// //static mp_obj_t mp_machine_uart_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args);
+// static mp_obj_t machine_uart_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args); 
+// static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size);
+// static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf_in) ;
+// //static mp_uint_t mp_machine_uart_ioctl(mp_obj_t self_in, mp_uint_t request, uintptr_t arg, int *errcode) ;
+// static mp_int_t mp_machine_uart_any(machine_uart_obj_t *self);
+// static void mp_machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args);
+// uint8_t UART_Deinit(machine_uart_obj_t *self);
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_machine_uart_read_obj, 1, mp_machine_uart_read);
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_machine_uart_write_obj, 1, mp_machine_uart_write);
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_machine_uart_any_obj, mp_machine_uart_any);
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_machine_uart_print_obj, mp_machine_uart_print);
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_machine_uart_init_helper_obj, 1, mp_machine_uart_init_helper);
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(UART_Deinit_obj, UART_Deinit);
 //------------------------------------------------------------------------------------------------------------
 //getting the object of uart from the instance number passed as input to the function
 static machine_uart_obj_t *mp_obj_get_uart_obj(mp_obj_t uart_in) {
@@ -172,6 +171,7 @@ static void mp_machine_uart_print(const mp_print_t *print, mp_obj_t self_in, mp_
     self->rx_thresh );
     //defined in py/stream.h
 }
+//STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_machine_uart_print_obj, mp_machine_uart_print);
 
 static void mp_machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_num,ARG_baudrate, ARG_bits, ARG_parity, ARG_stop, ARG_timeout, ARG_rx_thresh };
@@ -289,6 +289,8 @@ static void mp_machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args,
     //uart0_set_rxbuf(buf, UART0_STATIC_RXBUF_LEN);
 }
 
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_machine_uart_init_helper_obj, 1, mp_machine_uart_init_helper);
+
 
 uint8_t uart_rx_any(UART_Config_t *uart_config) {
 //     if (uart_ringbuf.iget != uart_ringbuf.iput) {
@@ -312,34 +314,6 @@ static bool uart_rx_wait(machine_uart_obj_t *self,uint32_t timeout) {
     //If not available the recieved bits ,leave
     //shoud be added inside the drivers ,so not used for now :/
 }
-STATIC const mp_rom_map_elem_t machine_uart_locals_dict_table[] = {
-    { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&mp_machine_uart_init_helper_obj) },
-    { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mp_machine_uart_read_obj) },
-    { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&mp_machine_uart_write_obj) },
-    { MP_ROM_QSTR(MP_QSTR_any), MP_ROM_PTR(&mp_machine_uart_any_obj) },
-    { MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&UART_Deinit_obj) },
-    {MP_ROM_QSTR(MP_QSTR_uart_print),MP_ROM_PTR(&mp_machine_uart_print_obj)}
-    };
-
-STATIC MP_DEFINE_CONST_DICT(mp_machine_uart_locals_dict, machine_uart_locals_dict_table);
-
-
-    // static mp_stream_p_t uart_stream_p = {
-    // .read = mp_machine_uart_read,
-    // .write = mp_machine_uart_write,
-    // .ioctl = mp_machine_uart_ioctl,
-    // .is_text = false,
-    // };
-
-MP_DEFINE_CONST_OBJ_TYPE(
-machine_uart_type,
-MP_QSTR_UART,
-MP_TYPE_FLAG_NONE,
-make_new, machine_uart_make_new,
-print, mp_machine_uart_print,
-//protocol, &uart_stream_p, //is this correct?
-locals_dict, &mp_machine_uart_locals_dict,
-);
 
     //-------------------------------------------------------------------------------------------------------------------------------
 static mp_obj_t machine_uart_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
@@ -364,6 +338,7 @@ static mp_int_t mp_machine_uart_any(machine_uart_obj_t *self) {
     return uart_rx_any(self->uart_id); //WE dont really need this input
     //for checking what uart is currently active in the system
 }
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_machine_uart_any_obj, mp_machine_uart_any);
 
 static bool mp_machine_uart_txdone(machine_uart_obj_t *self) {
     //return !!mp_uart_tx_any(self->uart_id);
@@ -382,10 +357,12 @@ static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size) {
     struct uart_buf inst;
     //if (uart_array[self->uart_id]->transfer_mode==0){
     uint8_t mode =uart_array[self->uart_id]->transfer_mode;
+    __attribute__ ((aligned(4))) uint8_t array_buffer [128];
     switch(mode){
         case 0:{
         //its of type 8
-        uint8_t* buffer=NULL;
+        uint8_t* buffer=array_buffer;
+
         //should include 256
         //struct uart_buf inst;
         inst.uart_data=buffer;
@@ -405,7 +382,7 @@ static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size) {
     //else if (uart_array[self->uart_id]->transfer_mode==1){
         case 1:{
         //its of type 16
-        uint16_t *buffer=NULL;
+        uint16_t *buffer=(uint16_t *)array_buffer;
         //struct uart_buf inst;
         inst.uart_data=buffer;
         inst.len=len;
@@ -425,7 +402,7 @@ static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size) {
         //its of type 32
         case 2:
         {
-        uint8_t *buffer=NULL;
+        uint32_t *buffer=uint32_t *array_buffer;
         //struct uart_buf inst;
         inst.uart_data=buffer;
         inst.len=len;
@@ -445,6 +422,8 @@ static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size) {
     return 0;
     //issue uhh
 }
+
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_machine_uart_read_obj, 1, mp_machine_uart_read);
 
 static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf_in) {
     //machine_uart_obj_t *self = MP_OBJ_TO_PTR(self_in);
@@ -494,7 +473,7 @@ static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf
         return len;
     return 0;
 }
-
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_machine_uart_write_obj, 1, mp_machine_uart_write);
 
 uint8_t UART_Tx_empty(UART_Config_t *uart_config)
 {
@@ -529,7 +508,7 @@ uint8_t UART_Deinit(machine_uart_obj_t *self)
 	return SUCCESS;
 }
 
-
+//STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_machine_uart_init_helper_obj, 1, mp_machine_uart_init_helper);
 //MP_REGISTER_ROOT_POINTER(byte * uart0_rxbuf);
 //Not using this anymore
 
@@ -552,5 +531,34 @@ uint8_t UART_Deinit(machine_uart_obj_t *self)
 //     mp_machine_uart_print,
 //     &mp_machine_uart_locals_dict
 // );
+
+STATIC const mp_rom_map_elem_t machine_uart_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&mp_machine_uart_init_helper_obj) },
+    { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mp_machine_uart_read_obj) },
+    { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&mp_machine_uart_write_obj) },
+    { MP_ROM_QSTR(MP_QSTR_any), MP_ROM_PTR(&mp_machine_uart_any_obj) },
+    //{ MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&UART_Deinit_obj) },
+    //{MP_ROM_QSTR(MP_QSTR_uart_print),MP_ROM_PTR(&mp_machine_uart_print_obj)}
+    };
+
+STATIC MP_DEFINE_CONST_DICT(machine_uart_locals_dict, machine_uart_locals_dict_table);
+
+
+    // static mp_stream_p_t uart_stream_p = {
+    // .read = mp_machine_uart_read,
+    // .write = mp_machine_uart_write,
+    // .ioctl = mp_machine_uart_ioctl,
+    // .is_text = false,
+    // };
+
+MP_DEFINE_CONST_OBJ_TYPE(
+machine_uart_new_type,
+MP_QSTR_UART,
+MP_TYPE_FLAG_NONE,
+make_new, machine_uart_make_new,
+print, mp_machine_uart_print,
+//protocol, &uart_stream_p, //is this correct?
+locals_dict, &machine_uart_locals_dict,
+);
 
 
