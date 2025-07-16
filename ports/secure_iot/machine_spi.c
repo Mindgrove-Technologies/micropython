@@ -28,7 +28,7 @@ typedef struct
     uint32_t value;
     int bits;
 }SPI_Config_t;*/
-SPI_Config_t* spi_array[SPI_NUM];
+//SPI_Config_t* spi_array[SPI_NUM];
 //Life is hard ,code is messy and I am sad
 //SPI_Config_t* spi_b;
 SPI_Config_t spi_b_inst0={
@@ -136,7 +136,7 @@ typedef struct _machine_spi_obj_t {
     uint32_t bit_rate;
     uint8_t polarity;
     uint8_t phase;
-    uint8_t master_mode;
+    uint8_t master_mode; //default it is master mode
 } machine_spi_obj_t;
 
 const machine_spi_obj_t machine_spi_obj[SPI_NUM] = {
@@ -240,38 +240,10 @@ static void machine_spi_print(const mp_print_t *print, mp_obj_t self_in, mp_prin
 }
 
 //Init function for SPI:
-/*typedef struct _machine_spi_obj_t {
-    mp_obj_base_t base;
-    uint8_t spi_id; // 0, 1, 2 3, etc.
-    uint32_t bit_rate;
-    uint8_t polarity;
-    uint8_t phase;
-    uint32_t prescalar;
-    uint8_t master_mode;
-} machine_spi_obj_t;*/
 static void machine_spi_obj_init_helper(mp_obj_base_t *self_in, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     //separating the kw and positional arguments needs prior knowledge of the argument distribution
     machine_spi_obj_t *self = (machine_spi_obj_t *)self_in;
-    //actually wait I am pointing the specific value only before.
     //setting of default values
-    // for(int i=0;i<SPI_NUM;i++){
-    //     SPI_Config_t* spi_b;
-    //     spi_b->spi_number=i;
-    //     spi_b->pol=0;
-    //     spi_b->pha=0;
-    //     spi_b->prescale=256;
-    //     spi_b->bit_rate=bit_rate_from_prescale(spi_b->prescale)
-    //     spi_b->setup_time=setup(spi_b->bit_rate)
-    //     spi_b->hold_time=hold(spi_b->bit_rate)
-    //     spi_b->master_mode=0;
-    //     spi_b->lsb_first=0;
-    //     spi_b->comm_mode=3;
-    //     spi_b->spi_size=8;
-    //     spi_b->value=0; 
-    //     spi_b->bits=8;
-    //     spi_array[i]=spi_b;
-    //     }
-
     enum { ARG_spi_id,ARG_bit_rate, ARG_polarity, ARG_phase,ARG_prescalar,ARG_master_mode,ARG_bits,ARG_lsb_first,ARG_size };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_spi_id,MP_ARG_REQUIRED|MP_ARG_INT, {.u_int = -1} },
@@ -343,12 +315,13 @@ static void machine_spi_obj_init_helper(mp_obj_base_t *self_in, size_t n_args, c
     //spi_init_gpio(SPIx, ...);
     //SPI_Init(spi_array[spi_id]);
     SPI_Configure(spi_array[spi_id],0);
+    //for now by default hardware based ncs -->to chnage
     SPI_Configure_Clock_In_Hz(spi_array[spi_id]);
     SPI_Enable(spi_array[spi_id]);
     //spi_clock(SPIx, ...);
     //spi_mode(SPIx, self->phase, self->polarity);
 }
-//object constructor from python inputs uhh
+//object constructor from python inputs
 mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
     // machine_spi_obj_t *self = mp_obj_malloc(machine_spi_obj_t, &machine_spi_type);
@@ -362,7 +335,7 @@ mp_obj_t machine_spi_make_new(const mp_obj_type_t *type, size_t n_args, size_t n
     machine_spi_obj_init_helper((mp_obj_base_t *)self, n_args - 1, args + 1, &kw_args);
     return MP_OBJ_FROM_PTR(self);
 }
-
+/*In objtype.c, functions like mp_obj_instance_make_new() or fun_builtin_var_call() (for __new__) extract args from the Python call stack and fill in n_args, n_kw, and args[].*/
 static mp_obj_t machine_spi_recieve(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
     return machine_spi_recieve_helper(MP_OBJ_TO_PTR(args[0]), n_args - 1, args + 1, kw_args);
     //the instance number to the actual pointer
