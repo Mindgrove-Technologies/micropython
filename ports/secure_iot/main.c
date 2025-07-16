@@ -107,9 +107,11 @@ int main(void) {
     //Making of the uart object:
     //UART_Config_t uart; /*Structure variable which hold the UART's specifications */
     //UART_Config_t *UART_Config_1=&uart; /*Creating a pointer to the above stucture variable*/
+    /*
     extern UART_Config_t* UART_Config_1;
     UART_Config_1->baudrate=117186;
     UART_Config_1->uart_num = 0;  // or 1/2 if UART0 is reserved for log/printf
+    */
     // UART_Config_1->buffer_enable = 0;  // or 1 if you want buffering
     // UART_Config_1->char_size=8;
     // UART_Config_1->stop_bits=0;
