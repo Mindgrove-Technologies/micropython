@@ -59,16 +59,17 @@ SRC_C = \
 	mphalport.c \
 	time.c \
 	delay.c \
+	uart_driver.c \
 	machine_uart.c \
 	machine_wdt.c \
 	machine_pin_new.c \
 	machine_i2c.c \
 	machine_spi.c \
 	machine_pwm.c \
+	machine_uart.c \
 	modmachine.c \
 	modtime.c \
 	random_module.c \
-	uart_driver.c \
 	i2c_driver.c \
 	RTC_driver.c \
 	pinmux_driver.c \
@@ -166,12 +167,12 @@ SRC_QSTR += \
 	mphalport.c \
 	time.c \
 	delay.c \
-	machine_uart.c \
 	machine_wdt.c \
 	machine_pin_new.c \
 	machine_i2c.c \
 	machine_spi.c \
 	machine_pwm.c \
+	machine_uart.c \
 	modmachine.c \
 	modtime.c \
 	random_module.c \

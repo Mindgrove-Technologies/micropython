@@ -1,5 +1,4 @@
 
-
 #include "py/mperrno.h"
 //This file is part of the MicroPython core.
 //return mp_raise_OSError(MP_EINVAL); --> Error invalid val 
@@ -9,7 +8,7 @@
 #include "py/runtime.h"
 #include "py/objtype.h"
 #include "py/objtuple.h"
-#include "py/ringbuf.h" //for the ring buffer data type
+//#include "py/ringbuf.h" //for the ring buffer data type
 #include "py/stream.h"
 #include "uart.h"
 #include "utils.h"
@@ -33,7 +32,7 @@
 #define timeout_char 60
 #define STATIC static
 #define UART_NUM 5
-extern const mp_obj_type_t machine_uart_new_type;
+extern const mp_obj_type_t machine_uart_type;
 extern volatile UART_Type *uart_instance[MAX_UART_COUNT] ;
 typedef struct _machine_uart_obj_t {
     mp_obj_base_t base;
@@ -402,7 +401,7 @@ static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size) {
         //its of type 32
         case 2:
         {
-        uint32_t *buffer=uint32_t *array_buffer;
+        uint32_t *buffer=(uint32_t *)array_buffer;
         //struct uart_buf inst;
         inst.uart_data=buffer;
         inst.len=len;
@@ -535,16 +534,16 @@ uint8_t UART_Deinit(machine_uart_obj_t *self)
 //     &mp_machine_uart_locals_dict
 // );
 
-STATIC const mp_rom_map_elem_t machine_uart_locals_dict_table[] = {
+static const mp_rom_map_elem_t machine_uart_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&mp_machine_uart_init_helper_obj) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&mp_machine_uart_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&mp_machine_uart_write_obj) },
     { MP_ROM_QSTR(MP_QSTR_any), MP_ROM_PTR(&mp_machine_uart_any_obj) },
     //{ MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&UART_Deinit_obj) },
     //{MP_ROM_QSTR(MP_QSTR_uart_print),MP_ROM_PTR(&mp_machine_uart_print_obj)}
-    };
+};
 
-STATIC MP_DEFINE_CONST_DICT(machine_uart_locals_dict, machine_uart_locals_dict_table);
+static MP_DEFINE_CONST_DICT(machine_uart_locals_dict, machine_uart_locals_dict_table);
 
 
     // static mp_stream_p_t uart_stream_p = {
@@ -555,13 +554,12 @@ STATIC MP_DEFINE_CONST_DICT(machine_uart_locals_dict, machine_uart_locals_dict_t
     // };
 
 MP_DEFINE_CONST_OBJ_TYPE(
-machine_uart_new_type,
-MP_QSTR_UART,
-MP_TYPE_FLAG_NONE,
-make_new, machine_uart_make_new,
-print, mp_machine_uart_print,
-//protocol, &uart_stream_p, //is this correct?
-locals_dict, &machine_uart_locals_dict,
+    machine_uart_type,
+    MP_QSTR_UART,
+    MP_TYPE_FLAG_NONE,
+    make_new, machine_uart_make_new,
+    print, mp_machine_uart_print,
+    locals_dict, &machine_uart_locals_dict
 );
 
 
