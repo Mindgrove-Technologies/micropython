@@ -33,7 +33,7 @@
 #include "wdtimer.h"
 #include "io.h"
 #include "py/runtime.h"
-#include "dynruntime.h"
+//#include "dynruntime.h"
 
 #define STATIC static
 
@@ -76,6 +76,13 @@ static machine_wdt_obj_t *mp_machine_wdt_make_new_instance(mp_int_t id, mp_int_t
             mp_printf(&mp_plat_print, "Watch dog timer instance created and fed\n");
             //immediately feeds the WDT (resets the counter).
             //Then returns the singleton WDT object.
+            volatile uint16_t *control_reg1 = (uint16_t*) (CONTROL_REG_ADDR);
+            volatile uint32_t *wd_cycles1 = (uint32_t*) (WD_CYCLES_REG_ADDR);
+            // Number of cycles before triggering the watchdog interrupt/event
+            volatile uint16_t *reset_cycles1 = (uint16_t*) (RESET_CYCLES_REG_ADDR);
+            //uint32_t *new_reset=(uint32_t*)&timeout_ms;
+            uint32_t new_reset=(uint32_t)(timeout_ms);
+            wdtimer_start(*control_reg1,new_reset,*wd_cycles1);
             return &wdt_default; //similar to write in uart
         default:
             mp_raise_ValueError(NULL);
