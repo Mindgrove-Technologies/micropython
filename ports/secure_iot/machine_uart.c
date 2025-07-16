@@ -505,6 +505,9 @@ uint8_t UART_Deinit(machine_uart_obj_t *self)
 	uart_instance[uart_config->uart_num] = NULL;
 
 	log_info("UART%d deinitialized successfully", uart_config->uart_num);
+    if (self->uart_id>=3){
+        PINMUX_EnableGPIO(self->uart_id);
+    }
 	return SUCCESS;
 }
 
