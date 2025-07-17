@@ -48,6 +48,8 @@ extern "C" {
 #define GPT_INTR_EN 1 // Interrupt enable
 #define GPT_INTR_DIS 0 // Interrupt disable
 
+
+
 typedef struct 
 {
     // The parameter gpt_num is an unsigned integer that represents the GPT instance number.
@@ -166,7 +168,7 @@ uint32_t GPT_Read_Captured_Val(GPTIMER_Config_t *gptimer);
 uint32_t GPT_Reset(GPTIMER_Config_t *gptimer);
 
 /**
- * @fn GPT_Delay_Milliseconds(GPTIMER_Config_t *gptimer, uint32_t delay)
+ * @fn GPT_Delay_Milliseconds(GPTIMER_Config_t gptimer, uint32_t delay)
  * 
  * @brief The function `GPT_Delay_Milliseconds` generates hardware delay in milliseconds.
  * 
@@ -197,7 +199,7 @@ uint32_t GPT_Delay_Milliseconds(GPTIMER_Config_t *gptimer, uint32_t delay);
 uint32_t GPT_Delay_Millisecs_H(uint32_t delay); 
 
 /**
- * @fn GPT_Delay_Microseconds(GPTIMER_Config_t *gptimer, uint32_t delay)
+ * @fn GPT_Delay_Microseconds(GPTIMER_Config_t gptimer, uint32_t delay)
  * 
  * @brief The function `GPT_Delay_Microseconds` generates hardware delay in microseconds.
  * 
@@ -214,7 +216,7 @@ uint32_t GPT_Delay_Millisecs_H(uint32_t delay);
 uint32_t GPT_Delay_Microseconds(GPTIMER_Config_t *gptimer, uint32_t delay);
 
 /**
- * @fn GPT_Delay_Microsecs_H(uint32_t delay)
+ * @fn GPT_Delay_Microsecs_H(GPTIMER_Config_t gptimer,uint32_t delay)
  * 
  * @brief The function `GPT_Delay_Microsecs_H` generates hardware delay in microseconds
  * 
@@ -226,7 +228,10 @@ uint32_t GPT_Delay_Microseconds(GPTIMER_Config_t *gptimer, uint32_t delay);
  * general-purpose timer (GPT) configured with a specific period based on the provided delay value.
  */
 uint32_t GPT_Delay_Microsecs_H(uint32_t delay);
-
+uint32_t GPT_Set_Dutycycle(GPTIMER_Config_t *gptimer);
+uint32_t GPT_Set_Period(GPTIMER_Config_t *gptimer);
+uint32_t GPT_Set_Prescalar(GPTIMER_Config_t *gptimer);
+uint32_t GPT_Intr_disable(GPTIMER_Config_t *gptimer);
 #ifdef __cplusplus
 }
 #endif

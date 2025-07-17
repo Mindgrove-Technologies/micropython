@@ -67,6 +67,7 @@ SRC_C = \
 	machine_spi.c \
 	machine_pwm.c \
 	machine_uart.c \
+	machine_timer.c \
 	modmachine.c \
 	modtime.c \
 	random_module.c \
@@ -173,6 +174,7 @@ SRC_QSTR += \
 	machine_spi.c \
 	machine_pwm.c \
 	machine_uart.c \
+	machine_timer.c \
 	modmachine.c \
 	modtime.c \
 	random_module.c \

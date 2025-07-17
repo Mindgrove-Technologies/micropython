@@ -6,4 +6,7 @@
 extern const mp_obj_type_t machine_uart_type;
 extern const mp_obj_type_t machine_wdt_type;
 extern const mp_obj_type_t machine_pin_type;
-//const mp_obj_module_t machine_module;
+extern const mp_obj_type_t machine_i2c_type;
+extern const mp_obj_type_t machine_spi_type;
+extern const mp_obj_type_t machine_pwm_type;
+extern const mp_obj_type_t machine_timer_type;
