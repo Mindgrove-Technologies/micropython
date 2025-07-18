@@ -115,7 +115,7 @@ int main(void) {
     mp_module_init_from_section(); //--> causes an error
     #endif
 
-    const char *src = "'Hello from micro python !'";
+    const char *src = "print('Hello from micro python !')";
     mp_lexer_t *lex = mp_lexer_new_from_str_len(MP_QSTR__lt_stdin_gt_, src, strlen(src), 0);
     mp_parse_tree_t parse_tree = mp_parse(lex, MP_PARSE_FILE_INPUT);
    // mp_obj_t module_fun = mp_compile(&parse_tree, lex->source_name, MP_EMIT_OPT_NONE, true);
