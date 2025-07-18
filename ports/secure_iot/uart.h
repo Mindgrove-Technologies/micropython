@@ -17,7 +17,6 @@
 #ifndef UART_H
 #define UART_H
 #include <stdint.h>
-#include "secure_iot.h"
 #include "plic.h"
 #include "errors.h"
 #include "pinmux.h"

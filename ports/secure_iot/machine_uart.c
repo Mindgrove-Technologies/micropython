@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include "secure_iot.h"
 #include "uart_core.h"
+#include "py/mpprint.h"
 // #include "modmachine.h"
 
 #ifdef MP_DEFINE_CONST_OBJ_TYPE
@@ -50,7 +51,7 @@ const machine_uart_obj_t machine_uart_obj[UART_NUM] = {
     {{&machine_uart_type}, 1,8,0,0,115200,10},
     {{&machine_uart_type}, 2,8,0,0,115200,10},
     {{&machine_uart_type}, 3,8,0,0,115200,10},
-    {{&machine_uart_type}, 4,8,0,0,115200,10},
+    {{&machine_uart_type}, 4,8,0,1,115200,10},
 
 };
 
@@ -101,7 +102,7 @@ UART_Config_t uart_b_inst3={
     .char_size=8,
     .delay=100, //check if the delay is fine
     .rxthreshold=10,
-    .transfer_mode=0,
+    .transfer_mode=2,
     .receive_mode=0,
     .pullup=0,
     //pull up initially disabled.
@@ -109,7 +110,7 @@ UART_Config_t uart_b_inst3={
 UART_Config_t uart_b_inst4={
     .uart_num=4,
     .baudrate=115200, //I think this the baud reg value
-    .stop_bits=0,
+    .stop_bits=1,
     .parity=0,
     .char_size=8,
     .delay=100, //check if the delay is fine
@@ -186,7 +187,8 @@ static void mp_machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args,
     //key word only arguments -> and object when we are not sure about the datatype to be used.
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
-    int num=args[ARG_num].u_int;
+    //int num=args[ARG_num].u_int;
+    uint8_t num=self->uart_id;
     if (args[ARG_baudrate].u_int > 0) {
         self->baudrate = args[ARG_baudrate].u_int;
         //baud rate vandhuruchu
@@ -282,7 +284,9 @@ static void mp_machine_uart_init_helper(machine_uart_obj_t *self, size_t n_args,
     }
 
     mp_printf(&mp_plat_print, "before the start of uart_init");
+    printf("Before uart init");
     UART_Init(uart_array[num]);
+    printf("After uart init\n \n");
     //#//define UART0_STATIC_RXBUF_LEN 128
     //uint8_t* buf=uart_buffers[UART_Config_1->uart_num].buffer;
     //uart0_set_rxbuf(buf, UART0_STATIC_RXBUF_LEN);
@@ -423,18 +427,19 @@ static mp_uint_t mp_machine_uart_read(machine_uart_obj_t *self,mp_uint_t size) {
 }
 
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_machine_uart_read_obj, 1, mp_machine_uart_read);
-
+/*
 static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf_in) {
     //machine_uart_obj_t *self = MP_OBJ_TO_PTR(self_in);
     //const byte *buf = buf_in; -->No 
     mp_printf(&mp_plat_print, "In uart write buff: %s",buf_in);
     // write the data
     //mp_printf(&mp_plat_print, "In uart write size: %u",size);
+    __attribute__((aligned(8))) uint8_t array[100];
     uint16_t len=0;
     uint8_t s;
     if (uart_array[self->uart_id]->transfer_mode==0){
         //its of type 8
-        uint8_t *buffer=NULL;
+        uint8_t *buffer=&array;
         buffer = (uint8_t *)buf_in;
         len=StrLen(buffer);
         //should include 256
@@ -445,7 +450,7 @@ static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf
     }
     else if (uart_array[self->uart_id]->transfer_mode==1){
         //its of type 16
-        uint8_t *buffer=NULL;
+        uint8_t *buffer=&array;
         buffer = (uint16_t *)buf_in;
         len=StrLen(buffer);
         struct uart_buf inst;
@@ -455,7 +460,7 @@ static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf
     }
     else if (uart_array[self->uart_id]->transfer_mode==2){
         //its of type 32
-        uint8_t *buffer=NULL;
+        uint8_t *buffer=&array;
         buffer = (uint32_t *)buf_in;
         len=StrLen(buffer);
         struct uart_buf inst;
@@ -471,8 +476,114 @@ static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf
     if (s==0)
         return len;
     return 0;
+}*/
+
+// Now takes an explicit length, not just the buffer.
+//static mp_uint_t mp_machine_uart_write(machine_uart_obj_t *self, const void *buf_in, size_t len) {
+STATIC mp_obj_t mp_machine_uart_write(size_t n_args, const mp_obj_t *args) {
+    // args[0]: self
+    // args[1]: buffer
+    // args[2]: length (optional if you want)
+    
+    machine_uart_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    UART_Init(uart_array[self->uart_id]);
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
+
+    size_t len = bufinfo.len;
+    if (n_args == 3) {
+        len = mp_obj_get_int(args[2]);
+        if (len > bufinfo.len) {
+            len = bufinfo.len; // Prevent overrun.
+        }
+    }
+
+    if (!uart_array) {
+        mp_printf(&mp_plat_print, "uart_array is NULL\n");
+        return mp_obj_new_int(0);
+    }
+    if (!uart_array[self->uart_id]) {
+        mp_printf(&mp_plat_print, "uart_array[%d] is NULL\n", self->uart_id);
+        return mp_obj_new_int(0);
+    }
+    extern const mp_print_t mp_plat_print;
+
+    mp_printf(&mp_plat_print,
+    "UART INIT CHECK -> id: %d, config_ptr: %p, hw_base: %p, transfer_mode: %d\n",
+    self->uart_id,
+    uart_array[self->uart_id],
+    uart_instance[self->uart_id],
+    uart_array[self->uart_id]->transfer_mode
+    );
+
+
+    if (((uintptr_t)bufinfo.buf) % 4 != 0) {
+    mp_printf(&mp_plat_print, "Buffer is not 4-byte aligned!\n");
+    }
+    uint8_t aligned_buf[512] __attribute__((aligned(4)));  
+    memcpy(aligned_buf, bufinfo.buf, len);
+    aligned_buf[len] = '\0'; 
+
+    mp_printf(&mp_plat_print, "In uart write buff: %x len: %u\n",  aligned_buf, (unsigned int)len);
+    uart_array[self->uart_id]->transfer_mode=(uint8_t) 0ULL;
+
+    //uint8_t* value =(uint8_t*) buf_in;
+    //int len=Strlen((uint8_t*)buf_in);
+    //mp_printf(&mp_plat_print, "In uart write buff: %p len: %zu\n", buf_in, len);
+    //mp_printf(&mp_plat_print, "In uart write buff: %p len: %u\n", buf_in, (unsigned int)len);
+    //printf("%s",value);
+    
+    struct uart_buf inst;
+    uint8_t s = 1; // Default error
+
+    // By default, let's use the data as a byte buffer.
+    // If your UART module wants 16/32-bit chunks, you can add those cases.
+    uint8_t* temp=aligned_buf;
+    if (uart_array[self->uart_id]->transfer_mode == 0) {
+        inst.uart_data = (uint8_t *)temp;
+        inst.len = (uint8_t)len;
+        s = UART_Write(uart_array[self->uart_id], &inst);
+    }
+    /*
+    else if (uart_array[self->uart_id]->transfer_mode == 1) {
+        // 16-bit mode, but still send as bytes unless your hardware needs it packaged differently.
+        if (len % 2 != 0) {
+            mp_printf(&mp_plat_print, "Len not aligned for 16-bit mode!\n");
+            return 0;
+        }
+        inst.uart_data = (uint16_t *)aligned_buf;   // Most UARTs still take bytes!
+        inst.len = (uint16_t)len;
+        s = UART_Write(uart_array[self->uart_id], &inst);
+    }
+    else if (uart_array[self->uart_id]->transfer_mode == 2) {
+        // 32-bit mode
+        // if (len % 4 != 0) {
+        //     mp_printf(&mp_plat_print, "Len not aligned for 32-bit mode!\n");
+        //     return 0;
+        // }
+        if (len % 4 != 0) {
+            mp_printf(&mp_plat_print, "[WARN] Len=%u not 32-bit aligned. Truncating to %u\n",
+                  (unsigned int)len, (unsigned int)(len & ~3));
+            len = len & ~3; // Truncate to multiple of 4
+        }
+
+        if (((uintptr_t)aligned_buf) % 4 != 0) {
+            mp_printf(&mp_plat_print, "[ERROR] Buffer not 4-byte aligned\n");
+            return mp_obj_new_int(0);
+        }
+        inst.uart_data = (uint32_t *)aligned_buf; // Use a cast to void* if needed.
+        inst.len = (uint16_t)len;
+        s = UART_Write(uart_array[self->uart_id], &inst);
+    }
+*/
+    // Report result:
+    if (s == 0)
+        return len; // Number of bytes written
+    return 0; // error
+
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_machine_uart_write_obj, 1, mp_machine_uart_write);
+
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_machine_uart_write_obj, 3, mp_machine_uart_write);
 
 uint8_t UART_Tx_empty(UART_Config_t *uart_config)
 {

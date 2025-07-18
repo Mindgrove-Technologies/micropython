@@ -16,7 +16,7 @@
  */
 
 #include "uart.h"
-	
+#include "secure_iot.h"
 
 #define STS_CAN_TAKE_INPUT  (1 << 10)
 #define STS_OUTP_READY      (1 << 9)
@@ -168,6 +168,7 @@ uint8_t UART_RX_Threshold(UART_Config_t *uart_config, uint8_t rxthreshold)
 uint8_t UART_Write(UART_Config_t *uart_config , struct uart_buf *rx_bufs)
 {
 	log_info("\nTransmitting data via uart instance %d",uart_config->uart_num);
+	printf("\nTransmitting data via uart instance %d",uart_config->uart_num);
 	uint32_t i = 0;
 	uint32_t length = rx_bufs->len;
 	Data temp;
@@ -205,6 +206,12 @@ uint8_t UART_Write(UART_Config_t *uart_config , struct uart_buf *rx_bufs)
 		default:
 
 			log_error("\n\rEntered wrong transfer mode ");
+			do
+			{
+				temp.data_8 = ((uint8_t*)(rx_bufs->uart_data))[i++];
+				while(uart_instance[uart_config->uart_num]->STATUS_REG & STS_TX_FULL);
+				uart_instance[uart_config->uart_num]->TX_REG.data_8 = temp.data_8;
+			} while((--length)!= 0);
 
 		break;
 	}
