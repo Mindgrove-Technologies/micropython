@@ -118,15 +118,6 @@ static void mp_machine_wdt_feed(machine_wdt_obj_t *self) {
 
     STATIC MP_DEFINE_CONST_DICT(mp_machine_wdt_locals_dict, machine_wdt_locals_dict_table);
 
-    // MP_DEFINE_OBJ_TYPE(
-    //     machine_uart_type,
-    //     MP_QSTR_UART,
-    //     MP_TYPE_FLAG_NONE,
-    //     print, mp_machine_uart_print,
-    //     make_new, mp_machine_uart_make_new,
-    //     protocol, &uart_stream_p,
-    //     locals_dict, &mp_machine_uart_locals_dict
-    // );
     MP_DEFINE_CONST_OBJ_TYPE(
     machine_wdt_type,
     MP_QSTR_WDT,
